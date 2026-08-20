@@ -1,6 +1,6 @@
 // 1. IMPORTAÇÕES NECESSÁRIAS
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, OAuthProvider, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, OAuthProvider, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, doc, getDoc, setDoc, getDocs, query, where, updateDoc, arrayUnion, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 // 2. COLE AS CHAVES DO SEU FIREBASE AQUI
@@ -109,6 +109,7 @@ window.mostrarTelaLogin = () => { esconderTudo(); document.getElementById('login
 window.loginComGoogle = async () => {
     try {
         await setPersistence(auth, browserLocalPersistence);
+        // Voltamos a usar o Popup (janelinha) que puxa a conta do celular
         await signInWithPopup(auth, googleProvider);
     } catch (e) {
         alert("Erro no login com Google: " + e.message);
@@ -118,6 +119,7 @@ window.loginComGoogle = async () => {
 window.loginComApple = async () => {
     try {
         await setPersistence(auth, browserLocalPersistence);
+        // Voltamos a usar o Popup (janelinha) para Apple
         await signInWithPopup(auth, appleProvider);
     } catch (e) {
         alert("Erro no login com Apple: " + e.message);
@@ -130,6 +132,63 @@ window.mascaraTelefone = (campo) => {
     if (v.length > 2) v = `(${v.substring(0,2)}) ${v.substring(2)}`;
     if (v.length > 10) v = `${v.substring(0,10)}-${v.substring(10)}`;
     campo.value = v;
+};
+
+// ==== LÓGICA DE LOGIN COM E-MAIL E SENHA ====
+
+window.fazerLoginEmail = async () => {
+    const email = document.getElementById('login-email').value;
+    const senha = document.getElementById('login-senha').value;
+    const manter = document.getElementById('manter-login').checked;
+    
+    if(!email || !senha) return alert("Preencha seu e-mail e senha!");
+    
+    try {
+        const persistencia = manter ? browserLocalPersistence : browserSessionPersistence;
+        await setPersistence(auth, persistencia);
+        await signInWithEmailAndPassword(auth, email, senha);
+    } catch(e) { 
+        alert("E-mail ou senha incorretos."); 
+    }
+};
+
+window.criarContaEmail = async () => {
+    const nome = document.getElementById('cadastro-nome').value;
+    const email = document.getElementById('cadastro-email').value;
+    const tel = document.getElementById('cadastro-telefone').value;
+    const senha = document.getElementById('cadastro-senha').value;
+
+    if(!nome || !email || !tel || !senha) return alert("Preencha todos os campos!");
+    if(senha.length < 6) return alert("A senha precisa ter no mínimo 6 caracteres.");
+
+    try {
+        // Cria a conta com e-mail e senha
+        const cred = await createUserWithEmailAndPassword(auth, email, senha);
+        // Salva o perfil no banco de dados
+        await setDoc(doc(db, "usuarios", cred.user.uid), { 
+            nome: nome, 
+            telefone: tel, 
+            email: email 
+        });
+    } catch(e) {
+        if(e.code === 'auth/email-already-in-use') alert("Este e-mail já está cadastrado!");
+        else alert("Erro ao criar conta: " + e.message);
+    }
+};
+
+window.recuperarSenha = async () => {
+    const email = document.getElementById('login-email').value;
+    
+    if(!email) {
+        return alert("Por favor, digite seu E-mail no campo acima e clique em 'Esqueci a senha' novamente.");
+    }
+    
+    try {
+        await sendPasswordResetEmail(auth, email);
+        alert("Enviamos um link de recuperação para o seu e-mail! Verifique também a pasta de Spam.");
+    } catch(e) { 
+        alert("Erro ao enviar e-mail. Verifique se digitou corretamente."); 
+    }
 };
 
 const formatarTelParaEmail = (tel) => tel.replace(/\D/g, '') + "@inimigos.com";

@@ -50,21 +50,47 @@
 </head>
 <body>
 
-<div class="container hidden" id="login-section" style="text-align: center;">
+<!-- TELA 1: LOGIN HÍBRIDO -->
+    <div class="container hidden" id="login-section" style="text-align: center;">
         <h2 style="color: #ff6600;">Inimigos da Manchete</h2>
         <p>Acesse seu painel com um clique</p>
         
-        <div style="margin-top: 30px; display: flex; flex-direction: column; gap: 12px;">
-            <!-- Botão Google -->
-            <button class="btn-primary" onclick="loginComGoogle()" style="background-color: #4285F4; font-size: 16px; padding: 14px; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <span>🌐</span> Entrar com Google
-            </button>
-            
-            <!-- Botão Apple -->
-            <button class="btn-primary" onclick="loginComApple()" style="background-color: #000000; color: white; font-size: 16px; padding: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid #444;">
-                <span>🍎</span> Entrar com Apple
-            </button>
+        <!-- Botão Google -->
+        <button class="btn-primary" onclick="loginComGoogle()" style="background-color: #4285F4; font-size: 16px; padding: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px;">
+            <span>🌐</span> Entrar com Google
+        </button>
+
+        <!-- Divisor Visual -->
+        <div style="margin: 20px 0; border-bottom: 1px solid #333; position: relative;">
+            <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #121212; padding: 0 10px; color: #666; font-size: 12px;">OU USE SEU E-MAIL</span>
         </div>
+
+        <!-- Campos de E-mail -->
+        <input type="email" id="login-email" placeholder="Seu E-mail">
+        <input type="password" id="login-senha" placeholder="Sua Senha">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 14px;">
+            <label style="color: #aaa; display: flex; align-items: center;">
+                <input type="checkbox" id="manter-login" checked style="margin-right: 5px;"> Manter logado
+            </label>
+            <a href="#" onclick="recuperarSenha()" style="color: #0099ff; text-decoration: none;">Esqueci a senha</a>
+        </div>
+
+        <button class="btn-secondary" onclick="fazerLoginEmail()" style="background-color: #2a2a2a; color: white;">Entrar com E-mail</button>
+        <button class="btn-text" onclick="mostrarTelaCadastro()">Não tem conta? Criar agora</button>
+    </div>
+
+    <!-- TELA 2: CADASTRO POR E-MAIL -->
+    <div class="container hidden" id="register-section">
+        <h2 style="color: #ff6600;">Criar Conta</h2>
+        <p>Preencha para acessar o time</p>
+        <input type="text" id="cadastro-nome" placeholder="Nome Completo">
+        <input type="email" id="cadastro-email" placeholder="Seu E-mail">
+        <input type="tel" id="cadastro-telefone" placeholder="WhatsApp (DDD + Número)" oninput="mascaraTelefone(this)">
+        <input type="password" id="cadastro-senha" placeholder="Crie uma Senha (mín. 6 letras)">
+        
+        <button class="btn-primary" onclick="criarContaEmail()">Finalizar Cadastro</button>
+        <button class="btn-text" onclick="mostrarTelaLogin()">Já tenho conta</button>
     </div>
 
     <!-- TELA 1.5: COMPLETAR PERFIL (Aparece só na 1ª vez) -->
