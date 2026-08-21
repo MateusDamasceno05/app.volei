@@ -214,18 +214,27 @@
 
     <!-- Header -->
     <!-- Header Corrigido -->
-    <header class="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-lg border-b border-zinc-900 px-6 py-5 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full overflow-hidden border border-zinc-800 flex items-center justify-center bg-zinc-900">
+    <!-- Header Corrigido Definitivo -->
+    <header class="sticky top-0 z-50 w-full bg-zinc-950/80 backdrop-blur-lg border-b border-zinc-900 px-6 py-5 flex items-center justify-between">
+        <div class="flex items-center gap-3 overflow-hidden">
+            
+            <!-- Avatar (shrink-0 garante que a bolinha não amasse) -->
+            <div class="w-10 h-10 shrink-0 rounded-full border border-zinc-800 flex items-center justify-center bg-zinc-900">
                 <i class="fa-solid fa-user text-zinc-500"></i>
             </div>
-            <div class="flex flex-col justify-center">
+            
+            <!-- Textos -->
+            <div class="flex flex-col justify-center overflow-hidden">
                 <p class="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-0.5">Bem-vindo</p>
-                <h2 class="font-bold text-lg text-white leading-none">Olá, <span id="nome-usuario-lobby" class="neon-orange">Jogador</span></h2>
+                <!-- whitespace-nowrap impede que o nome caia para a linha de baixo -->
+                <h2 class="font-bold text-lg text-white leading-none whitespace-nowrap">
+                    Olá, <span id="nome-usuario-lobby" class="neon-orange">Jogador</span>
+                </h2>
             </div>
         </div>
-        <!-- Botão com a função correta do seu app.js -->
-        <button onclick="fazerLogout()" class="p-2 text-zinc-500 hover:text-red-500 transition-colors">
+        
+        <!-- Botão de Sair (ml-auto joga ele pro canto direito absoluto) -->
+        <button onclick="fazerLogout()" class="p-2 ml-auto shrink-0 text-zinc-500 hover:text-red-500 transition-colors">
             <i class="fa-solid fa-right-from-bracket text-xl"></i>
         </button>
     </header>
