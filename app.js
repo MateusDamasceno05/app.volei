@@ -79,7 +79,7 @@ window.salvarPerfil = async () => {
 
         // Recarrega os dados e manda pro Lobby
         perfilUsuario = { nome: nome, telefone: tel };
-        document.getElementById('saudacao').innerText = "Olá, " + perfilUsuario.nome.split(" ")[0];
+        document.getElementById('nome-usuario-lobby').innerText = perfilUsuario.nome.split(" ")[0];
         
         esconderTudo();
 
