@@ -293,43 +293,102 @@ window.abrirLobby = async () => {
 };
 
 window.mostrarCriacaoTime = () => {
-    // Para simplificar agora, criamos via um prompt simples
-    // Futuramente podemos fazer um modal bonitão do Tailwind
-    const nome = prompt("Qual o nome do novo time?");
-    if(nome && nome.trim() !== "") {
-        criarTime(nome);
-    }
+    document.getElementById('modal-criar-time').classList.remove('hidden');
 };
 
-window.criarTime = async (nome) => {
+// Fecha o modal limpando a tela
+window.fecharModalTime = () => {
+    document.getElementById('modal-criar-time').classList.add('hidden');
+    document.getElementById('nome-time').value = '';
+};
+
+window.criarTime = async () => {
+    // Vai buscar o texto digitado no input do modal
+    const inputNome = document.getElementById('nome-time');
+    const nome = inputNome.value;
+    
+    if(!nome || nome.trim() === "") return alert("Digite o nome do time!");
+    
     try {
         await addDoc(collection(db, "times"), {
             nome: nome,
             adminUid: usuarioAtual.uid,
             membros: [usuarioAtual.uid]
         });
+        
+        inputNome.value = ""; // Limpa o campo depois de criar
+        document.getElementById('modal-criar-time').classList.add('hidden');
         abrirLobby(); 
-    } catch (e) { alert("Erro ao criar: " + e.message); }
+    } catch (e) { 
+        alert("Erro ao criar: " + e.message); 
+    }
 };
 
-// Pequeno ajuste para garantir que a saudação global (se usada em outro lugar) não quebre
-// (Substitua a linha onAuthStateChanged -> if (userSnap.exists()) { ... } por isso:)
-// document.getElementById('nome-usuario-lobby').innerText = perfilUsuario.nome.split(" ")[0]; 
-// (Eu já tirei o 'saudacao' de lá no seu código mentalmente).
+// ==========================================
+// CORREÇÃO DO SISTEMA DE CONVITES
+// ==========================================
 
+window.verificarConvite = async () => {
+    // Primeiro, abre o lobby normalmente para o usuário não ficar olhando pro vazio
+    await abrirLobby();
+    
+    try {
+        // Vai no banco de dados buscar as informações desse time
+        const timeSnap = await getDoc(doc(db, "times", conviteId));
+        
+        if (timeSnap.exists()) {
+            const timeData = timeSnap.data();
+            
+            // Verifica se o usuário JÁ ESTÁ no time para não dar erro
+            if (timeData.membros && timeData.membros.includes(usuarioAtual.uid)) {
+                alert("Você já faz parte do time: " + timeData.nome);
+                recusarConvite(); // Limpa a URL
+                return;
+            }
+
+            // Exibe a caixinha laranja de convite pendente
+            const areaConvite = document.getElementById('convite-pendente-section');
+            if(areaConvite) {
+                areaConvite.classList.remove('hidden');
+                document.getElementById('nome-time-convite').innerText = timeData.nome;
+            }
+        } else {
+            alert("Este convite é inválido ou o time foi apagado.");
+            recusarConvite();
+        }
+    } catch (erro) {
+        console.error("Erro ao ler convite:", erro);
+        alert("Erro ao abrir convite: " + erro.message);
+        recusarConvite();
+    }
+};
+
+// SUBSTITUA A SUA recusarConvite() ATUAL POR ESTA AQUI:
+window.recusarConvite = () => {
+    // Esconde a área de convite para sumir da tela
+    const areaConvite = document.getElementById('convite-pendente-section');
+    if(areaConvite) areaConvite.classList.add('hidden');
+    
+    // Limpa o ?convite=ID da barra de endereços (URL)
+    window.history.replaceState(null, null, window.location.pathname);
+    
+    // Atualiza o lobby com os times
+    abrirLobby();
+};
+
+// E PARA GARANTIR, SUBSTITUA SUA aceitarConvite() POR ESTA:
 window.aceitarConvite = async () => {
     try {
         await updateDoc(doc(db, "times", conviteId), {
             membros: arrayUnion(usuarioAtual.uid)
         });
-        alert("Você entrou no time!");
-        recusarConvite(); // Reaproveitando função para limpar URL e ir pro lobby
-    } catch(e) { alert("Erro ao entrar: " + e.message); }
-};
-
-window.recusarConvite = () => {
-    window.history.replaceState(null, null, window.location.pathname);
-    abrirLobby();
+        alert("Show! Você entrou no time.");
+        
+        // A função recusarConvite já limpa a tela e a URL, reaproveitamos ela:
+        recusarConvite(); 
+    } catch(e) { 
+        alert("Erro ao entrar: " + e.message); 
+    }
 };
 
 
