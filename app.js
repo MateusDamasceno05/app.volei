@@ -1024,6 +1024,12 @@ window.salvarConfigPerfil = async () => {
 // SISTEMA DE AMIGOS
 // ==========================================
 
+// ==========================================
+// SISTEMA DE AMIGOS
+// ==========================================
+let unsubSolicitacoes = null;
+let unsubAmigos = null;
+
 window.abrirAmigos = () => {
     esconderTudo();
     document.getElementById('amigos-section').classList.remove('hidden');
@@ -1031,9 +1037,9 @@ window.abrirAmigos = () => {
     document.getElementById('input-busca-amigo').value = "";
     document.getElementById('resultados-busca-section').classList.add('hidden');
     
-    // Aqui no futuro chamaremos as funções:
-    // carregarSolicitacoes();
-    // carregarAmigos();
+    // Dispara os "olheiros" em tempo real
+    carregarSolicitacoes();
+    carregarMeusAmigos();
 };
 
 // Gera o link de amizade e copia para o celular
@@ -1042,40 +1048,13 @@ window.copiarLinkAmizade = () => {
     navigator.clipboard.writeText(link).then(() => alert("Link de amizade copiado! Cole no WhatsApp da galera."));
 };
 
-// Verifica quem mandou o link de amizade e pergunta se quer aceitar
-window.verificarConviteAmizade = async () => {
-    await abrirLobby(); // Abre o lobby por baixo para não ficar tela preta
-    
-    if(amigoId === usuarioAtual.uid) {
-        alert("Você não pode adicionar a si mesmo!");
-        limparUrlAmigo();
-        return;
-    }
-    
-    try {
-        const amigoSnap = await getDoc(doc(db, "usuarios", amigoId));
-        if (amigoSnap.exists()) {
-            const nomeAmigo = amigoSnap.data().nome;
-            const confirmacao = confirm(`Você recebeu um pedido de amizade de ${nomeAmigo}. Deseja aceitar e adicionar à sua rede?`);
-            
-            if (confirmacao) {
-                // O próximo passo do projeto será salvar isso no banco de dados!
-                alert(`Sucesso! No próximo passo, salvaremos a conexão com ${nomeAmigo} no banco de dados.`);
-            }
-        } else {
-            alert("Este link de amizade é inválido ou expirou.");
-        }
-    } catch(e) {
-        alert("Erro ao buscar convite: " + e.message);
-    }
-    limparUrlAmigo();
-};
-
 const limparUrlAmigo = () => {
     window.history.replaceState(null, null, window.location.pathname);
 };
 
-// Busca atualizada para aceitar Nome ou Telefone!
+// ==========================================
+// BUSCA E ENVIO DE SOLICITAÇÃO
+// ==========================================
 window.buscarUsuarios = async () => {
     const termoBusca = document.getElementById('input-busca-amigo').value.trim();
     const areaResultados = document.getElementById('resultados-busca-section');
@@ -1091,20 +1070,16 @@ window.buscarUsuarios = async () => {
 
     try {
         let resultados = [];
-        
-        // Verifica se o usuário digitou números (Provavelmente está buscando por telefone)
         const isTelefone = /^[0-9\-\(\)\s]+$/.test(termoBusca) && termoBusca.replace(/\D/g, '').length >= 8;
 
         if (isTelefone) {
-            // Busca exata pelo telefone (O usuário tem que digitar com a formatação)
             const qTel = query(collection(db, "usuarios"), where("telefone", "==", termoBusca));
             const snapTel = await getDocs(qTel);
             snapTel.forEach(doc => resultados.push({ id: doc.id, ...doc.data() }));
         } else {
-            // Busca pelo nome
             const qNome = query(collection(db, "usuarios"), 
-                            where("nome", ">=", termoBusca),
-                            where("nome", "<=", termoBusca + '\uf8ff'));
+                              where("nome", ">=", termoBusca),
+                              where("nome", "<=", termoBusca + '\uf8ff'));
             const snapNome = await getDocs(qNome);
             snapNome.forEach(doc => resultados.push({ id: doc.id, ...doc.data() }));
         }
@@ -1112,14 +1087,15 @@ window.buscarUsuarios = async () => {
         divResultados.innerHTML = "";
 
         if (resultados.length === 0) {
-            // Aqui damos a dica de que o telefone precisa estar formatado certinho
             divResultados.innerHTML = `<p class="text-zinc-500 text-sm text-center">Ninguém encontrado.<br><span class="text-[10px]">Dica: para telefone, digite com DDD e traço, ex: (16) 99999-9999</span></p>`;
             return;
         }
 
         resultados.forEach((userBuscado) => {
             const uidBuscado = userBuscado.id;
+            // Não mostra a si mesmo e não mostra quem já é amigo
             if(uidBuscado === usuarioAtual.uid) return;
+            if(perfilUsuario.amigos && perfilUsuario.amigos.includes(uidBuscado)) return;
 
             const primeiraLetra = userBuscado.nome ? userBuscado.nome.charAt(0).toUpperCase() : "?";
 
@@ -1141,12 +1117,185 @@ window.buscarUsuarios = async () => {
             `;
         });
     } catch (erro) {
-        console.error("Erro na busca: ", erro);
         divResultados.innerHTML = `<p class="text-red-500 text-sm text-center">Erro ao buscar.</p>`;
     }
 };
 
 window.enviarSolicitacao = async (uidDestino) => {
-    alert("Função de enviar solicitação para: " + uidDestino + " será ativada no próximo passo!");
-    // O próximo passo será gravar isso no banco de dados
+    try {
+        // Grava na subcoleção "solicitacoes" do destino
+        const docRef = doc(db, "usuarios", uidDestino, "solicitacoes", usuarioAtual.uid);
+        await setDoc(docRef, {
+            uid: usuarioAtual.uid,
+            nome: perfilUsuario.nome,
+            data: new Date().toISOString()
+        });
+        
+        alert("Solicitação enviada com sucesso!");
+        
+        // Limpa a busca
+        document.getElementById('input-busca-amigo').value = "";
+        document.getElementById('resultados-busca-section').classList.add('hidden');
+    } catch (e) {
+        alert("Erro ao enviar: " + e.message);
+    }
+};
+
+window.verificarConviteAmizade = async () => {
+    await abrirLobby(); // Abre o lobby no fundo para não bugar a tela
+    
+    if(amigoId === usuarioAtual.uid) {
+        alert("Você não pode adicionar a si mesmo!");
+        limparUrlAmigo();
+        return;
+    }
+    
+    try {
+        const amigoSnap = await getDoc(doc(db, "usuarios", amigoId));
+        if (amigoSnap.exists()) {
+            const nomeAmigo = amigoSnap.data().nome;
+            const confirmacao = confirm(`Você recebeu um pedido de amizade de ${nomeAmigo}. Deseja enviar uma solicitação de volta?`);
+            
+            if (confirmacao) {
+                await enviarSolicitacao(amigoId);
+            }
+        } else {
+            alert("Este link de amizade é inválido ou expirou.");
+        }
+    } catch(e) {
+        alert("Erro ao buscar convite: " + e.message);
+    }
+    limparUrlAmigo();
+};
+
+// ==========================================
+// LISTAGEM E AÇÕES DE SOLICITAÇÕES
+// ==========================================
+window.carregarSolicitacoes = () => {
+    const divSol = document.getElementById('lista-solicitacoes');
+    if (unsubSolicitacoes) unsubSolicitacoes();
+    
+    unsubSolicitacoes = onSnapshot(collection(db, "usuarios", usuarioAtual.uid, "solicitacoes"), (snap) => {
+        if (snap.empty) {
+            divSol.innerHTML = `<p class="text-zinc-500 text-xs italic">Nenhuma solicitação no momento.</p>`;
+            return;
+        }
+        
+        divSol.innerHTML = "";
+        snap.forEach((docSnap) => {
+            const sol = docSnap.data();
+            const uidRemetente = docSnap.id;
+            const letra = sol.nome ? sol.nome.charAt(0).toUpperCase() : "?";
+            
+            divSol.innerHTML += `
+                <div class="friend-card rounded-2xl p-4 flex items-center justify-between border-l-2 border-l-neon-orange">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center bg-zinc-900 text-neon-orange font-black">
+                            ${letra}
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-white">${sol.nome}</h4>
+                            <p class="text-[10px] text-zinc-500 uppercase font-black">Quer conectar</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="recusarAmizade('${uidRemetente}')" class="w-8 h-8 rounded-lg bg-zinc-800 text-zinc-400 flex items-center justify-center active:scale-95 transition-all">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                        <button onclick="aceitarAmizade('${uidRemetente}')" class="w-8 h-8 rounded-lg bg-neon-orange text-white flex items-center justify-center active:scale-95 transition-all shadow-neon">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+    });
+};
+
+window.aceitarAmizade = async (uidAmigo) => {
+    try {
+        // 1. Adiciona o amigo na MINHA lista
+        await updateDoc(doc(db, "usuarios", usuarioAtual.uid), {
+            amigos: arrayUnion(uidAmigo)
+        });
+        
+        // 2. Me adiciona na lista do AMIGO
+        await updateDoc(doc(db, "usuarios", uidAmigo), {
+            amigos: arrayUnion(usuarioAtual.uid)
+        });
+        
+        // 3. Deleta a notificação
+        await deleteDoc(doc(db, "usuarios", usuarioAtual.uid, "solicitacoes", uidAmigo));
+        
+    } catch(e) {
+        alert("Erro ao aceitar amizade: " + e.message);
+    }
+};
+
+window.recusarAmizade = async (uidAmigo) => {
+    try {
+        await deleteDoc(doc(db, "usuarios", usuarioAtual.uid, "solicitacoes", uidAmigo));
+    } catch(e) {
+        console.error("Erro ao recusar: ", e);
+    }
+};
+
+// ==========================================
+// LISTAGEM DOS AMIGOS CONFIRMADOS
+// ==========================================
+window.carregarMeusAmigos = () => {
+    const divAmigos = document.getElementById('lista-amigos');
+    if (unsubAmigos) unsubAmigos();
+    
+    // Fica de olho no documento do usuário atual para ver se o array 'amigos' muda
+    unsubAmigos = onSnapshot(doc(db, "usuarios", usuarioAtual.uid), async (docSnap) => {
+        if (!docSnap.exists()) return;
+        
+        perfilUsuario = docSnap.data(); // Atualiza a global por garantia
+        const amigosIds = perfilUsuario.amigos || [];
+        
+        if (amigosIds.length === 0) {
+            divAmigos.innerHTML = `<p class="text-zinc-500 text-xs italic">Você ainda não adicionou amigos.</p>`;
+            return;
+        }
+        
+        divAmigos.innerHTML = `<p class="text-zinc-500 text-xs text-center"><i class="fa-solid fa-spinner fa-spin"></i> Carregando rede...</p>`;
+        
+        let htmlAmigos = "";
+        
+        // Faz a busca do nome e dados reais de cada amigo do array
+        for (const uidAmigo of amigosIds) {
+            try {
+                const amigoSnap = await getDoc(doc(db, "usuarios", uidAmigo));
+                if (amigoSnap.exists()) {
+                    const amg = amigoSnap.data();
+                    const letra = amg.nome ? amg.nome.charAt(0).toUpperCase() : "?";
+                    const pos = amg.posicao || "JOG";
+                    
+                    htmlAmigos += `
+                        <div class="friend-card rounded-2xl p-4 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="relative">
+                                    <div class="w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center bg-zinc-900 text-zinc-500 font-bold">
+                                        ${letra}
+                                    </div>
+                                    <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-[#18181b]"></div>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-white">${amg.nome}</h4>
+                                    <p class="text-[10px] text-zinc-500 uppercase font-black">Posição: ${pos}</p>
+                                </div>
+                            </div>
+                            <button class="text-zinc-500 hover:text-neon-orange transition-colors p-2">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+            } catch(err) {
+                console.error("Erro ao buscar amigo:", err);
+            }
+        }
+        divAmigos.innerHTML = htmlAmigos;
+    });
 };
