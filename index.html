@@ -206,72 +206,72 @@
         </div>
     </div>
 
-    <!-- TELA 2: LOBBY (Design Novo) -->
-    <div id="lobby-section" class="hidden w-full min-h-screen relative pb-24 overflow-x-hidden">
-        
-        <!-- Decoration -->
-        <div class="fixed top-1/2 -left-20 w-64 h-64 bg-orange-600/5 blur-[100px] rounded-full -z-10"></div>
+<!-- TELA 2: LOBBY (Design Novo) -->
+<div id="lobby-section" class="hidden w-full min-h-screen relative pb-24 overflow-x-hidden">
+    
+    <!-- Decoration -->
+    <div class="fixed top-1/2 -left-20 w-64 h-64 bg-orange-600/5 blur-[100px] rounded-full -z-10"></div>
 
-        <!-- Header -->
-        <header class="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-lg border-b border-zinc-900 px-6 py-5 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full overflow-hidden border border-zinc-800 flex items-center justify-center bg-zinc-900">
-                    <i class="fa-solid fa-user text-zinc-500"></i> <!-- Ícone temporário até termos foto de perfil -->
-                </div>
-                <div>
-                    <p class="text-zinc-500 text-xs font-bold uppercase tracking-wider">Bem-vindo</p>
-                    <h2 class="font-bold text-lg">Olá, <span id="nome-usuario-lobby" class="neon-orange">Jogador</span></h2>
-                </div>
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-lg border-b border-zinc-900 px-6 py-5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full overflow-hidden border border-zinc-800 flex items-center justify-center bg-zinc-900">
+                <i class="fa-solid fa-user text-zinc-500"></i> <!-- Ícone temporário até termos foto de perfil -->
             </div>
-            <button onclick="logout()" class="p-2 text-zinc-500 hover:text-red-500 transition-colors">
-                <i class="fa-solid fa-right-from-bracket text-xl"></i>
-            </button>
-        </header>
-
-        <main class="px-6 py-8 space-y-8">
-            
-            <!-- Conditional Invitation Card (Escondido por padrão) -->
-            <section id="convite-pendente-section" class="hidden space-y-4">
-                <div class="invite-gradient rounded-2xl p-5 flex items-center justify-between gap-4">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-orange-600/10 flex items-center justify-center">
-                            <i class="fa-solid fa-envelope-open-text neon-orange text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs text-zinc-400 font-medium">Convite pendente</p>
-                            <h3 id="nome-time-convite" class="font-bold text-white">Nome do Time</h3>
-                        </div>
-                    </div>
-                    <button onclick="aceitarConvite()" class="bg-neon-orange text-white text-sm font-bold px-4 py-2.5 rounded-lg shadow-neon active:scale-95 transition-all">
-                        Aceitar
-                    </button>
-                </div>
-            </section>
-
-            <!-- Teams List -->
-            <section class="space-y-4">
-                <div class="flex items-center justify-between">
-                    <h3 class="font-extrabold text-xl tracking-tight text-white">Meus Times</h3>
-                    <span id="contador-times" class="bg-zinc-900 text-zinc-400 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-tighter">0 Ativos</span>
-                </div>
-
-                <!-- Aqui o JavaScript vai injetar os cards dos times -->
-                <div id="lista-times" class="grid gap-4">
-                    <!-- Os times entram aqui -->
-                </div>
-            </section>
-        </main>
-
-        <!-- Create Team Button (FAB) -->
-        <div class="fixed bottom-8 left-0 right-0 px-6 z-40">
-            <button onclick="mostrarCriacaoTime()" class="w-full bg-zinc-900 border border-zinc-800 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] active:border-neon-orange shadow-lg">
-                <div class="w-8 h-8 rounded-lg bg-neon-orange/20 flex items-center justify-center">
-                    <i class="fa-solid fa-plus neon-orange"></i>
-                </div>
-                Criar Novo Time
-            </button>
+            <div>
+                <p class="text-zinc-500 text-xs font-bold uppercase tracking-wider">Bem-vindo</p>
+                <h2 class="font-bold text-lg">Olá, <span id="nome-usuario-lobby" class="neon-orange">Jogador</span></h2>
+            </div>
         </div>
+        <button onclick="logout()" class="p-2 text-zinc-500 hover:text-red-500 transition-colors">
+            <i class="fa-solid fa-right-from-bracket text-xl"></i>
+        </button>
+    </header>
+
+    <main class="px-6 py-8 space-y-8">
+        
+        <!-- Conditional Invitation Card (Escondido por padrão) -->
+        <section id="convite-pendente-section" class="hidden space-y-4">
+            <div class="invite-gradient rounded-2xl p-5 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-orange-600/10 flex items-center justify-center">
+                        <i class="fa-solid fa-envelope-open-text neon-orange text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-zinc-400 font-medium">Convite pendente</p>
+                        <h3 id="nome-time-convite" class="font-bold text-white">Nome do Time</h3>
+                    </div>
+                </div>
+                <button onclick="aceitarConvite()" class="bg-neon-orange text-white text-sm font-bold px-4 py-2.5 rounded-lg shadow-neon active:scale-95 transition-all">
+                    Aceitar
+                </button>
+            </div>
+        </section>
+
+        <!-- Teams List -->
+        <section class="space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-extrabold text-xl tracking-tight text-white">Meus Times</h3>
+                <span id="contador-times" class="bg-zinc-900 text-zinc-400 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-tighter">0 Ativos</span>
+            </div>
+
+            <!-- Aqui o JavaScript vai injetar os cards dos times -->
+            <div id="lista-times" class="grid gap-4">
+                <!-- Os times entram aqui -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Create Team Button (FAB) -->
+    <div class="fixed bottom-8 left-0 right-0 px-6 z-40">
+        <button onclick="mostrarCriacaoTime()" class="w-full bg-zinc-900 border border-zinc-800 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] active:border-neon-orange shadow-lg">
+            <div class="w-8 h-8 rounded-lg bg-neon-orange/20 flex items-center justify-center">
+                <i class="fa-solid fa-plus neon-orange"></i>
+            </div>
+            Criar Novo Time
+        </button>
     </div>
+</div>
 
     <!-- MODAL CRIAR TIME (Dentro do Lobby) -->
     <div class="container hidden" id="modal-criar-time">

@@ -40,7 +40,7 @@ onAuthStateChanged(auth, async (user) => {
         // Se o usuário já tem perfil salvo no banco, segue o jogo
         if (userSnap.exists()) {
             perfilUsuario = userSnap.data();
-            document.getElementById('saudacao').innerText = "Olá, " + perfilUsuario.nome.split(" ")[0];
+            document.getElementById('nome-usuario-lobby').innerText = user.displayName; // ou a variável que você usa
             
             if (conviteId) {
                 verificarConvite();
@@ -235,64 +235,87 @@ window.abrirLobby = async () => {
     esconderTudo();
     document.getElementById('lobby-section').classList.remove('hidden');
     
-    const listaDiv = document.getElementById('lista-meus-times');
-    listaDiv.innerHTML = "<p style='text-align: center;'>Buscando times...</p>";
+    // Atualiza o nome do usuário no novo Header do Lobby
+    if(perfilUsuario) {
+        document.getElementById('nome-usuario-lobby').innerText = perfilUsuario.nome.split(" ")[0];
+    }
+
+    const listaDiv = document.getElementById('lista-times'); // Novo ID do contêiner de times
+    const contadorTimes = document.getElementById('contador-times'); // Novo contador
+    listaDiv.innerHTML = "<p style='text-align: center; color: #888;'>Buscando times...</p>";
 
     try {
         const q = query(collection(db, "times"), where("membros", "array-contains", usuarioAtual.uid));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
-            listaDiv.innerHTML = "<p style='color: #888; text-align: center;'>Você ainda não está em nenhum time.</p>";
+            contadorTimes.innerText = "0 Ativos";
+            listaDiv.innerHTML = `
+                <div class="team-card p-6 rounded-2xl flex flex-col items-center justify-center text-center opacity-70">
+                    <div class="w-16 h-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-3">
+                        <i class="fa-solid fa-volleyball text-2xl text-zinc-600"></i>
+                    </div>
+                    <h4 class="font-bold text-lg text-white mb-1">Nenhum time ainda</h4>
+                    <p class="text-zinc-500 text-sm">Crie um time ou peça um convite.</p>
+                </div>`;
             return;
         }
 
+        contadorTimes.innerText = `${querySnapshot.size} Ativos`;
         listaDiv.innerHTML = "";
+        
         querySnapshot.forEach((docSnap) => {
             const time = docSnap.data();
+            const timeId = docSnap.id;
+            const qntMembros = time.membros ? time.membros.length : 0;
+            const cargo = (time.adminUid === usuarioAtual.uid) ? " • Admin" : "";
+            
+            // Desenha o CARD NOVO do UX Copilot
             listaDiv.innerHTML += `
-                <div class="time-item" onclick="entrarNoVestiario('${docSnap.id}', '${time.nome}', '${time.adminUid}')">
-                    <span style="font-weight: bold; color: white;">🏐 ${time.nome}</span>
-                    <span style="color: #ff6600;">➔</span>
+                <div onclick="entrarNoVestiario('${timeId}', '${time.nome}', '${time.adminUid}')" class="team-card p-4 rounded-2xl flex items-center justify-between cursor-pointer active:scale-95 transition-transform">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center overflow-hidden">
+                            <i class="fa-solid fa-fire text-2xl text-orange-500"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg text-white">${time.nome}</h4>
+                            <p class="text-zinc-500 text-sm">${qntMembros} Jogadores${cargo}</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-zinc-700"></i>
                 </div>
             `;
         });
     } catch (e) { 
         console.error("Erro Lobby:", e); 
-        listaDiv.innerHTML = "<p>Erro ao carregar times.</p>";
+        listaDiv.innerHTML = "<p class='text-red-500 text-center'>Erro ao carregar times.</p>";
     }
 };
 
-window.criarTime = async () => {
-    const nome = document.getElementById('nome-time').value;
-    if(!nome) return alert("Digite o nome!");
+window.mostrarCriacaoTime = () => {
+    // Para simplificar agora, criamos via um prompt simples
+    // Futuramente podemos fazer um modal bonitão do Tailwind
+    const nome = prompt("Qual o nome do novo time?");
+    if(nome && nome.trim() !== "") {
+        criarTime(nome);
+    }
+};
+
+window.criarTime = async (nome) => {
     try {
         await addDoc(collection(db, "times"), {
             nome: nome,
             adminUid: usuarioAtual.uid,
             membros: [usuarioAtual.uid]
         });
-        document.getElementById('nome-time').value = "";
-        document.getElementById('modal-criar-time').classList.add('hidden');
         abrirLobby(); 
     } catch (e) { alert("Erro ao criar: " + e.message); }
 };
 
-
-// 6. SISTEMA DE CONVITES
-window.verificarConvite = async () => {
-    esconderTudo();
-    try {
-        const docSnap = await getDoc(doc(db, "times", conviteId));
-        if (docSnap.exists()) {
-            document.getElementById('nome-time-convite').innerText = docSnap.data().nome;
-            document.getElementById('invite-section').classList.remove('hidden');
-        } else {
-            alert("Esse convite é inválido.");
-            recusarConvite();
-        }
-    } catch (e) { recusarConvite(); }
-};
+// Pequeno ajuste para garantir que a saudação global (se usada em outro lugar) não quebre
+// (Substitua a linha onAuthStateChanged -> if (userSnap.exists()) { ... } por isso:)
+// document.getElementById('nome-usuario-lobby').innerText = perfilUsuario.nome.split(" ")[0]; 
+// (Eu já tirei o 'saudacao' de lá no seu código mentalmente).
 
 window.aceitarConvite = async () => {
     try {
