@@ -47,38 +47,103 @@
         .painel-rateio { background: #242424; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #333; margin-bottom: 15px; }
         .valor-destaque { font-size: 28px; color: #00cc66; font-weight: bold; margin: 5px 0; }
     </style>
+
+    <!-- Tailwind CSS e FontAwesome (Visual Novo) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #09090b; /* Zinc 950 */
+            color: #fafafa;
+        }
+        .neon-orange { color: #ff5f1f; }
+        .bg-neon-orange { background-color: #ff5f1f; }
+        .border-neon-orange { border-color: #ff5f1f; }
+        .shadow-neon { box-shadow: 0 0 15px rgba(255, 95, 31, 0.3); }
+        .glass-card {
+            background: rgba(24, 24, 27, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
 </head>
 <body>
 
-<!-- TELA 1: LOGIN HÍBRIDO -->
-    <div class="container hidden" id="login-section" style="text-align: center;">
-        <h2 style="color: #ff6600;">Inimigos da Manchete</h2>
-        <p>Acesse seu painel com um clique</p>
+<!-- TELA 1: LOGIN (Design Novo) -->
+<div id="login-section" class="hidden w-full min-h-screen flex flex-col items-center justify-center p-6 overflow-hidden relative">
+    
+    <!-- Background Decoration -->
+    <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-orange-600/10 blur-[100px] rounded-full -z-10"></div>
+    <div class="absolute -top-20 -left-20 w-64 h-64 bg-orange-600/10 blur-[100px] rounded-full -z-10"></div>
+
+    <!-- Logo & Welcome -->
+    <div class="w-full max-w-sm mb-12 text-center z-10">
+        <div class="mb-6 inline-flex items-center justify-center w-24 h-24 rounded-full bg-zinc-900 border-2 border-neon-orange shadow-neon">
+            <i class="fa-solid fa-volleyball text-4xl neon-orange animate-bounce-slow"></i>
+        </div>
+        <h1 class="text-3xl font-extrabold tracking-tight mb-2 text-[#FF5F1F]">VÔLEI DE<br><span class="text-[#FF5F1F]">GIGANTES</span></h1>
+        <p class="text-zinc-400 font-medium">Gestão de vôlei de praia amador</p>
+    </div>
+
+    <!-- Login Container -->
+    <div class="w-full max-w-sm space-y-6 z-10">
         
-        <!-- Botão Google -->
-        <button class="btn-primary" onclick="loginComGoogle()" style="background-color: #4285F4; font-size: 16px; padding: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px;">
-            <span>🌐</span> Entrar com Google
+        <!-- Social Login (Conectado ao JS) -->
+        <button onclick="loginComGoogle()" class="w-full flex items-center justify-center gap-3 bg-white text-black font-bold py-4 px-6 rounded-xl transition-all active:scale-95">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5">
+            Entrar com Google
         </button>
 
-        <!-- Divisor Visual -->
-        <div style="margin: 20px 0; border-bottom: 1px solid #333; position: relative;">
-            <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #121212; padding: 0 10px; color: #666; font-size: 12px;">OU USE SEU E-MAIL</span>
+        <!-- Divider -->
+        <div class="flex items-center gap-4 py-2">
+            <div class="h-px flex-1 bg-zinc-800"></div>
+            <span class="text-xs font-bold text-zinc-500 uppercase tracking-widest">Ou use seu E-mail</span>
+            <div class="h-px flex-1 bg-zinc-800"></div>
         </div>
 
-        <!-- Campos de E-mail -->
-        <input type="email" id="login-email" placeholder="Seu E-mail">
-        <input type="password" id="login-senha" placeholder="Sua Senha">
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 14px;">
-            <label style="color: #aaa; display: flex; align-items: center;">
-                <input type="checkbox" id="manter-login" checked style="margin-right: 5px;"> Manter logado
-            </label>
-            <a href="#" onclick="recuperarSenha()" style="color: #0099ff; text-decoration: none;">Esqueci a senha</a>
+        <!-- Form Fields -->
+        <div class="space-y-4">
+            <div class="space-y-2">
+                <label for="login-email" class="text-sm font-semibold text-zinc-300 ml-1">E-mail</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-zinc-500">
+                        <i class="fa-regular fa-envelope"></i>
+                    </span>
+                    <input type="email" id="login-email" placeholder="nome@exemplo.com" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-4 pl-11 pr-4 text-white focus:outline-none focus:border-neon-orange transition-colors">
+                </div>
+            </div>
+            
+            <div class="space-y-2">
+                <div class="flex justify-between items-center px-1">
+                    <label for="login-senha" class="text-sm font-semibold text-zinc-300">Senha</label>
+                    <a href="#" onclick="recuperarSenha()" class="text-xs font-bold neon-orange hover:underline">Esqueci a senha</a>
+                </div>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-zinc-500">
+                        <i class="fa-solid fa-lock"></i>
+                    </span>
+                    <input type="password" id="login-senha" placeholder="••••••••" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-4 pl-11 pr-4 text-white focus:outline-none focus:border-neon-orange transition-colors">
+                </div>
+            </div>
+            
+            <!-- Checkbox Manter Logado (Escondido visualmente mas funcional) -->
+            <input type="checkbox" id="manter-login" checked class="hidden">
+
+            <!-- Botão Entrar Email (Conectado ao JS) -->
+            <button type="button" onclick="fazerLoginEmail()" class="w-full bg-neon-orange text-white font-bold py-4 rounded-xl shadow-neon mt-4 transition-all active:scale-95">
+                Entrar com E-mail
+            </button>
         </div>
 
-        <button class="btn-secondary" onclick="fazerLoginEmail()" style="background-color: #2a2a2a; color: white;">Entrar com E-mail</button>
-        <button class="btn-text" onclick="mostrarTelaCadastro()">Não tem conta? Criar agora</button>
+        <!-- Footer Link (Conectado ao JS) -->
+        <p class="text-center text-sm text-zinc-400 mt-8">
+            Não tem uma conta?
+            <a href="#" onclick="mostrarTelaCadastro()" class="neon-orange font-bold hover:underline">Criar Conta</a>
+        </p>
     </div>
+</div>
 
     <!-- TELA 2: CADASTRO POR E-MAIL -->
     <div class="container hidden" id="register-section">
