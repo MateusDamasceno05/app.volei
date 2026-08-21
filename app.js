@@ -25,6 +25,7 @@ let timeAtualId = null;
 let jogoAtualId = null;
 const urlParams = new URLSearchParams(window.location.search);
 const conviteId = urlParams.get('convite');
+const amigoId = urlParams.get('amigo');
 const googleProvider = new GoogleAuthProvider();
 const appleProvider = new OAuthProvider('apple.com');
 
@@ -44,6 +45,9 @@ onAuthStateChanged(auth, async (user) => {
 
             if (conviteId) {
                 verificarConvite();
+            } else if (amigoId) {
+                // Lógica para lidar com o ID do amigo
+                verificarConviteAmizade();
             } else {
                 abrirLobby();
             }
@@ -95,7 +99,7 @@ window.salvarPerfil = async () => {
 };
 
 function esconderTudo() {
-    ['login-section', 'perfil-section', 'register-section', 'invite-section', 'lobby-section', 'team-section', 'game-section', 'modal-criar-time', 'modal-chamar-jogo', 'meu-perfil-screen'].forEach(id => {
+    ['login-section', 'perfil-section', 'register-section', 'invite-section', 'lobby-section', 'team-section', 'game-section', 'modal-criar-time', 'modal-chamar-jogo', 'meu-perfil-screen', 'amigos-section'].forEach(id => {
         const el = document.getElementById(id);
         if(el) el.classList.add('hidden');
     });
@@ -1014,4 +1018,135 @@ window.salvarConfigPerfil = async () => {
         btnSalvar.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar Alterações';
         btnSalvar.disabled = false;
     }
+};
+
+// ==========================================
+// SISTEMA DE AMIGOS
+// ==========================================
+
+window.abrirAmigos = () => {
+    esconderTudo();
+    document.getElementById('amigos-section').classList.remove('hidden');
+    // Limpa a busca ao abrir
+    document.getElementById('input-busca-amigo').value = "";
+    document.getElementById('resultados-busca-section').classList.add('hidden');
+    
+    // Aqui no futuro chamaremos as funções:
+    // carregarSolicitacoes();
+    // carregarAmigos();
+};
+
+// Gera o link de amizade e copia para o celular
+window.copiarLinkAmizade = () => {
+    const link = `${window.location.origin}${window.location.pathname}?amigo=${usuarioAtual.uid}`;
+    navigator.clipboard.writeText(link).then(() => alert("Link de amizade copiado! Cole no WhatsApp da galera."));
+};
+
+// Verifica quem mandou o link de amizade e pergunta se quer aceitar
+window.verificarConviteAmizade = async () => {
+    await abrirLobby(); // Abre o lobby por baixo para não ficar tela preta
+    
+    if(amigoId === usuarioAtual.uid) {
+        alert("Você não pode adicionar a si mesmo!");
+        limparUrlAmigo();
+        return;
+    }
+    
+    try {
+        const amigoSnap = await getDoc(doc(db, "usuarios", amigoId));
+        if (amigoSnap.exists()) {
+            const nomeAmigo = amigoSnap.data().nome;
+            const confirmacao = confirm(`Você recebeu um pedido de amizade de ${nomeAmigo}. Deseja aceitar e adicionar à sua rede?`);
+            
+            if (confirmacao) {
+                // O próximo passo do projeto será salvar isso no banco de dados!
+                alert(`Sucesso! No próximo passo, salvaremos a conexão com ${nomeAmigo} no banco de dados.`);
+            }
+        } else {
+            alert("Este link de amizade é inválido ou expirou.");
+        }
+    } catch(e) {
+        alert("Erro ao buscar convite: " + e.message);
+    }
+    limparUrlAmigo();
+};
+
+const limparUrlAmigo = () => {
+    window.history.replaceState(null, null, window.location.pathname);
+};
+
+// Busca atualizada para aceitar Nome ou Telefone!
+window.buscarUsuarios = async () => {
+    const termoBusca = document.getElementById('input-busca-amigo').value.trim();
+    const areaResultados = document.getElementById('resultados-busca-section');
+    const divResultados = document.getElementById('lista-resultados-busca');
+    
+    if (termoBusca.length < 3) {
+        areaResultados.classList.add('hidden');
+        return;
+    }
+
+    areaResultados.classList.remove('hidden');
+    divResultados.innerHTML = `<p class="text-zinc-500 text-sm text-center py-4">Buscando <i class="fa-solid fa-spinner fa-spin"></i></p>`;
+
+    try {
+        let resultados = [];
+        
+        // Verifica se o usuário digitou números (Provavelmente está buscando por telefone)
+        const isTelefone = /^[0-9\-\(\)\s]+$/.test(termoBusca) && termoBusca.replace(/\D/g, '').length >= 8;
+
+        if (isTelefone) {
+            // Busca exata pelo telefone (O usuário tem que digitar com a formatação)
+            const qTel = query(collection(db, "usuarios"), where("telefone", "==", termoBusca));
+            const snapTel = await getDocs(qTel);
+            snapTel.forEach(doc => resultados.push({ id: doc.id, ...doc.data() }));
+        } else {
+            // Busca pelo nome
+            const qNome = query(collection(db, "usuarios"), 
+                            where("nome", ">=", termoBusca),
+                            where("nome", "<=", termoBusca + '\uf8ff'));
+            const snapNome = await getDocs(qNome);
+            snapNome.forEach(doc => resultados.push({ id: doc.id, ...doc.data() }));
+        }
+
+        divResultados.innerHTML = "";
+
+        if (resultados.length === 0) {
+            // Aqui damos a dica de que o telefone precisa estar formatado certinho
+            divResultados.innerHTML = `<p class="text-zinc-500 text-sm text-center">Ninguém encontrado.<br><span class="text-[10px]">Dica: para telefone, digite com DDD e traço, ex: (16) 99999-9999</span></p>`;
+            return;
+        }
+
+        resultados.forEach((userBuscado) => {
+            const uidBuscado = userBuscado.id;
+            if(uidBuscado === usuarioAtual.uid) return;
+
+            const primeiraLetra = userBuscado.nome ? userBuscado.nome.charAt(0).toUpperCase() : "?";
+
+            divResultados.innerHTML += `
+                <div class="friend-card rounded-2xl p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center bg-zinc-900 text-zinc-500 font-bold">
+                            ${primeiraLetra}
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-white">${userBuscado.nome}</h4>
+                            <p class="text-[10px] text-zinc-500 uppercase font-black">${userBuscado.telefone || "Jogador"}</p>
+                        </div>
+                    </div>
+                    <button onclick="enviarSolicitacao('${uidBuscado}')" class="w-8 h-8 rounded-lg bg-neon-orange/10 text-neon-orange flex items-center justify-center active:scale-95 transition-all">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </button>
+                </div>
+            `;
+        });
+    } catch (erro) {
+        console.error("Erro na busca: ", erro);
+        divResultados.innerHTML = `<p class="text-red-500 text-sm text-center">Erro ao buscar.</p>`;
+    }
+};
+
+window.enviarSolicitacao = async (uidDestino) => {
+    alert("Função de enviar solicitação para: " + uidDestino + " será ativada no próximo passo!");
+    // O próximo passo será gravar isso no banco de dados
 };
