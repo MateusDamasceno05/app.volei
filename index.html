@@ -41,6 +41,22 @@
             background: linear-gradient(135deg, #18181b 0%, #27272a 100%);
             border: 1px dashed #ff5f1f;
         }
+
+        /* CSS DA CARTA DO JOGADOR E PERFIL */
+        .fut-card {
+            background: linear-gradient(135deg, #18181b 0%, #27272a 100%);
+            border: 2px solid #ff5f1f;
+            position: relative;
+            clip-path: polygon(10% 0%, 90% 0%, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0% 90%, 0% 10%);
+            box-shadow: 0 0 25px rgba(255, 95, 31, 0.2);
+        }
+        .ovr-badge { font-size: 3.5rem; line-height: 1; font-weight: 900; color: #ff5f1f; text-shadow: 0 0 10px rgba(255, 95, 31, 0.4); }
+        .stat-bar-bg { height: 4px; background: #27272a; border-radius: 2px; }
+        .stat-bar-fill { height: 4px; background: #ff5f1f; border-radius: 2px; }
+        .trophy-badge { background: rgba(39, 39, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.2s ease; }
+        .timeline-dot { position: relative; }
+        .timeline-dot::after { content: ''; position: absolute; left: 50%; bottom: -24px; width: 1px; height: 24px; background: #27272a; }
+        .timeline-item:last-child .timeline-dot::after { display: none; }
     </style>
 
     <!-- CSS ANTIGO (Isolado apenas para as telas não atualizadas) -->
@@ -129,6 +145,141 @@
 </head>
 <body>
 
+<!-- TELA 5: MEU PERFIL (Estilo FUT Card Completo) -->
+<div id="meu-perfil-screen" class="hidden w-full min-h-screen pb-12 bg-[#09090b]">
+    
+    <!-- Header -->
+    <header class="p-6 flex items-center justify-between sticky top-0 z-50 bg-[#09090b]/90 backdrop-blur-md">
+        <div class="flex items-center gap-4">
+            <button onclick="abrirLobby()" class="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 active:scale-95 transition-all">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <h1 class="text-2xl font-black tracking-tight uppercase">Meu <span class="neon-orange">Perfil</span></h1>
+        </div>
+        <button onclick="abrirConfigPerfil()" class="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 active:scale-90 transition-all">
+            <i class="fa-solid fa-gear"></i>
+        </button>
+    </header>
+
+    <main class="space-y-10">
+
+        <!-- Player Card (FIFA style) -->
+        <section id="player-card-section" class="px-6 flex justify-center">
+            <div class="fut-card w-full max-w-[320px] aspect-[1/1.4] p-6 flex flex-col items-center">
+                <!-- Card Header -->
+                <div class="w-full flex justify-between items-start mb-4">
+                    <div class="flex flex-col items-center">
+                        <span class="ovr-badge" id="perfil-ovr">85</span>
+                        <span id="perfil-posicao" class="text-[10px] font-black uppercase text-zinc-400">JOG</span>
+                    </div>
+                    <div class="relative w-20">
+                        <div id="perfil-avatar-letra" class="w-full aspect-square rounded-full border-4 border-zinc-800 shadow-xl flex items-center justify-center bg-zinc-900 text-neon-orange font-black text-4xl">
+                            ?
+                        </div>
+                        <div onclick="abrirConfigPerfil()" class="absolute -bottom-1 -right-1 w-7 h-7 bg-neon-orange rounded-full border-2 border-zinc-900 flex items-center justify-center text-[10px] shadow-lg">
+                            <i class="fa-solid fa-camera text-white"></i>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center pt-2">
+                        <i class="fa-solid fa-fire neon-orange text-xl"></i>
+                    </div>
+                </div>
+
+                <!-- Player Name -->
+                <div class="w-full text-center border-y border-zinc-700 py-2 mb-6">
+                    <h2 class="text-2xl font-black uppercase tracking-tighter truncate"><span class="neon-orange" id="perfil-nome-fut">JOGADOR</span></h2>
+                </div>
+
+                <!-- Attributes -->
+                <div class="w-full grid grid-cols-2 gap-x-8 gap-y-4">
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[10px] font-bold uppercase text-zinc-400 px-1"><span>Saque</span><span>82</span></div>
+                        <div class="stat-bar-bg w-full"><div class="stat-bar-fill" style="width: 82%"></div></div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[10px] font-bold uppercase text-zinc-400 px-1"><span>Ataque</span><span>78</span></div>
+                        <div class="stat-bar-bg w-full"><div class="stat-bar-fill" style="width: 78%"></div></div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[10px] font-bold uppercase text-zinc-400 px-1"><span>Defesa</span><span>89</span></div>
+                        <div class="stat-bar-bg w-full"><div class="stat-bar-fill" style="width: 89%"></div></div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[10px] font-bold uppercase text-zinc-400 px-1"><span>Passe</span><span>92</span></div>
+                        <div class="stat-bar-bg w-full"><div class="stat-bar-fill" style="width: 92%"></div></div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[10px] font-bold uppercase text-zinc-400 px-1"><span>Físico</span><span>85</span></div>
+                        <div class="stat-bar-bg w-full"><div class="stat-bar-fill" style="width: 85%"></div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trophy Room -->
+        <section id="trophies" class="px-6 space-y-4">
+            <h3 class="font-extrabold text-lg uppercase tracking-tight text-white">Sala de Troféus</h3>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="trophy-badge rounded-2xl p-4 flex flex-col items-center text-center gap-2">
+                    <div class="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-500 text-lg">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <span class="text-[8px] font-black uppercase text-zinc-400 leading-tight">MVP da Partida</span>
+                    <span class="text-[10px] font-bold text-zinc-500">x0</span>
+                </div>
+                <div class="trophy-badge rounded-2xl p-4 flex flex-col items-center text-center gap-2">
+                    <div class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 text-lg">
+                        <i class="fa-solid fa-wall-brick"></i>
+                    </div>
+                    <span class="text-[8px] font-black uppercase text-zinc-400 leading-tight">Paredão</span>
+                    <span class="text-[10px] font-bold text-zinc-500">x0</span>
+                </div>
+                <div class="trophy-badge rounded-2xl p-4 flex flex-col items-center text-center gap-2 opacity-40">
+                    <div class="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 text-lg">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                    <span class="text-[8px] font-black uppercase text-zinc-400 leading-tight">Mão de Alface</span>
+                    <span class="text-[10px] font-bold text-zinc-500">x0</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Historical Stats -->
+        <section id="stats" class="px-6">
+            <div class="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-6 grid grid-cols-3 gap-4">
+                <div class="text-center space-y-1">
+                    <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Jogos</p>
+                    <p class="text-2xl font-black text-white">0</p>
+                </div>
+                <div class="text-center space-y-1 border-x border-zinc-800">
+                    <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Presença</p>
+                    <p class="text-2xl font-black neon-orange">100%</p>
+                </div>
+                <div class="text-center space-y-1">
+                    <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Vitórias</p>
+                    <p class="text-2xl font-black text-white">0%</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Game History -->
+        <section id="history" class="px-6 space-y-6 pb-8">
+            <div class="flex items-center justify-between">
+                <h3 class="font-extrabold text-lg uppercase tracking-tight text-white">Histórico Recente</h3>
+                <i class="fa-solid fa-clock-rotate-left text-zinc-500"></i>
+            </div>
+
+            <div class="space-y-6">
+                <div class="p-6 rounded-2xl border border-zinc-800 border-dashed text-center">
+                    <i class="fa-solid fa-volleyball text-3xl text-zinc-700 mb-3"></i>
+                    <p class="text-zinc-500 text-sm">Seu histórico de jogos aparecerá aqui em breve.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
 <!-- TELA 1: LOGIN (Design Novo) -->
 <div id="login-section" class="hidden w-full min-h-screen flex flex-col items-center justify-center p-6 overflow-hidden relative">
     <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-orange-600/10 blur-[100px] rounded-full -z-10"></div>
@@ -209,7 +360,7 @@
     <div class="fixed top-1/2 -left-20 w-64 h-64 bg-orange-600/5 blur-[100px] rounded-full -z-10"></div>
 
     <header class="sticky top-0 z-50 w-full bg-zinc-950/80 backdrop-blur-lg border-b border-zinc-900 px-6 py-5 flex items-center justify-between">
-        <div class="flex items-center gap-3 overflow-hidden">
+        <div class="flex items-center gap-3 overflow-hidden cursor-pointer active:scale-95 transition-all" onclick="abrirMeuPerfil()">
             <div class="w-10 h-10 shrink-0 rounded-full border border-zinc-800 flex items-center justify-center bg-zinc-900">
                 <i class="fa-solid fa-user text-zinc-500"></i>
             </div>
@@ -431,5 +582,64 @@
 </div>
 
 <script type="module" src="app.js"></script>
+
+<!-- MODAL DE CONFIGURAÇÕES DO PERFIL -->
+<div id="modal-config-perfil" class="hidden fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-zinc-950 border border-zinc-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+        <!-- Efeito visual de fundo -->
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-orange-600/20 blur-3xl rounded-full pointer-events-none"></div>
+
+        <div class="flex justify-between items-center mb-6 relative z-10">
+            <h3 class="text-xl font-black text-white uppercase tracking-tight">Editar <span class="neon-orange">Perfil</span></h3>
+            <button onclick="fecharConfigPerfil()" class="text-zinc-500 hover:text-white transition-colors">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+        </div>
+
+        <div class="space-y-4 relative z-10">
+            <!-- Input de Foto -->
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-zinc-400 uppercase tracking-widest ml-1">Foto de Perfil</label>
+                <div class="relative bg-zinc-900 border border-zinc-800 rounded-xl p-3 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-neon-orange">
+                        <i class="fa-solid fa-camera"></i>
+                    </div>
+                    <input type="file" id="edit-foto" accept="image/*" class="w-full text-sm text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-orange-600/10 file:text-neon-orange hover:file:bg-orange-600/20 cursor-pointer">
+                </div>
+            </div>
+
+            <!-- Input de Nome -->
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-zinc-400 uppercase tracking-widest ml-1">Nome de Jogador</label>
+                <input type="text" id="edit-nome" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-neon-orange transition-colors" placeholder="Seu nome">
+            </div>
+
+            <!-- Input de Posição -->
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-zinc-400 uppercase tracking-widest ml-1">Posição Principal</label>
+                <select id="edit-posicao" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-neon-orange transition-colors appearance-none">
+                    <option value="JOG">Jogador (Geral)</option>
+                    <option value="LEV">Levantador</option>
+                    <option value="PON">Ponteiro</option>
+                    <option value="OPO">Oposto</option>
+                    <option value="CEN">Central / Bloqueio</option>
+                    <option value="LIB">Líbero</option>
+                </select>
+            </div>
+
+            <!-- Input de Telefone -->
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-zinc-400 uppercase tracking-widest ml-1">WhatsApp</label>
+                <input type="tel" id="edit-telefone" oninput="mascaraTelefone(this)" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-neon-orange transition-colors" placeholder="(00) 00000-0000">
+            </div>
+
+            <!-- Botão Salvar -->
+            <button onclick="salvarConfigPerfil()" class="w-full bg-neon-orange text-white font-black py-4 rounded-xl shadow-neon mt-4 active:scale-95 transition-all flex justify-center items-center gap-2">
+                <i class="fa-solid fa-floppy-disk"></i> Salvar Alterações
+            </button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

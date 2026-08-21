@@ -94,9 +94,8 @@ window.salvarPerfil = async () => {
     }
 };
 
-// Utilitário para limpar a tela
 function esconderTudo() {
-    ['login-section', 'perfil-section', 'register-section', 'invite-section', 'lobby-section', 'team-section', 'game-section', 'modal-criar-time', 'modal-chamar-jogo'].forEach(id => {
+    ['login-section', 'perfil-section', 'register-section', 'invite-section', 'lobby-section', 'team-section', 'game-section', 'modal-criar-time', 'modal-chamar-jogo', 'meu-perfil-screen'].forEach(id => {
         const el = document.getElementById(id);
         if(el) el.classList.add('hidden');
     });
@@ -883,4 +882,105 @@ window.mudarAbaVestiario = (abaDesejada) => {
     const btnAtivo = document.getElementById(`btn-nav-${abaDesejada}`);
     btnAtivo.classList.remove('text-zinc-600');
     btnAtivo.classList.add('neon-orange');
+};
+
+// ==========================================
+// TELA MEU PERFIL (FUT CARD)
+// ==========================================
+window.abrirMeuPerfil = () => {
+    esconderTudo();
+    document.getElementById('meu-perfil-screen').classList.remove('hidden');
+
+    if (perfilUsuario) {
+        const nomeCompleto = perfilUsuario.nome || "Jogador";
+        
+        // 1. Lógica da Foto de Perfil
+        const avatarDiv = document.getElementById('perfil-avatar-letra');
+        if (perfilUsuario.foto) {
+            // Se tem foto, coloca a imagem
+            avatarDiv.innerHTML = `<img src="${perfilUsuario.foto}" class="w-full h-full object-cover rounded-full">`;
+            avatarDiv.classList.remove('text-neon-orange', 'font-black', 'text-4xl'); // Tira o estilo da letra
+        } else {
+            // Se não tem foto, mostra a 1ª letra do nome
+            const letra = nomeCompleto.charAt(0).toUpperCase();
+            avatarDiv.innerHTML = letra;
+            avatarDiv.classList.add('text-neon-orange', 'font-black', 'text-4xl');
+        }
+
+        // 2. Atualiza o Nome
+        const primeiroNome = nomeCompleto.split(" ")[0].toUpperCase();
+        document.getElementById('perfil-nome-fut').innerText = primeiroNome;
+
+        // 3. Atualiza a Posição na Carta
+        const siglaPosicao = perfilUsuario.posicao || "JOG";
+        document.getElementById('perfil-posicao').innerText = siglaPosicao;
+    }
+};
+
+// ==========================================
+// CONFIGURAÇÕES DO PERFIL (FOTO, NOME, POSIÇÃO)
+// ==========================================
+
+window.abrirConfigPerfil = () => {
+    document.getElementById('modal-config-perfil').classList.remove('hidden');
+    
+    // Preenche os campos com os dados que já temos
+    if (perfilUsuario) {
+        document.getElementById('edit-nome').value = perfilUsuario.nome || '';
+        document.getElementById('edit-telefone').value = perfilUsuario.telefone || '';
+        document.getElementById('edit-posicao').value = perfilUsuario.posicao || 'JOG';
+    }
+};
+
+window.fecharConfigPerfil = () => {
+    document.getElementById('modal-config-perfil').classList.add('hidden');
+};
+
+window.salvarConfigPerfil = async () => {
+    const nome = document.getElementById('edit-nome').value;
+    const telefone = document.getElementById('edit-telefone').value;
+    const posicao = document.getElementById('edit-posicao').value;
+    const fotoInput = document.getElementById('edit-foto');
+
+    if(!nome) return alert("O nome não pode ficar vazio!");
+
+    // Muda o botão para "Salvando..."
+    event.target.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+    event.target.disabled = true;
+
+    try {
+        let dadosAtualizados = { nome, telefone, posicao };
+
+        // Se o cara escolheu uma foto nova, nós convertemos ela
+        if (fotoInput.files && fotoInput.files[0]) {
+            const file = fotoInput.files[0];
+            const reader = new FileReader();
+            
+            // Promessa para esperar a foto carregar
+            await new Promise((resolve) => {
+                reader.onloadend = () => {
+                    dadosAtualizados.foto = reader.result; // Salva como Base64
+                    resolve();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Salva tudo no banco de dados do Firebase
+        await updateDoc(doc(db, "usuarios", usuarioAtual.uid), dadosAtualizados);
+        
+        // Atualiza nossa variável local e a tela
+        perfilUsuario = { ...perfilUsuario, ...dadosAtualizados };
+        alert("Perfil atualizado com sucesso!");
+        
+        fecharConfigPerfil();
+        abrirMeuPerfil(); // Recarrega a tela de perfil
+
+    } catch (erro) {
+        alert("Erro ao salvar: " + erro.message);
+    } finally {
+        // Volta o botão ao normal
+        event.target.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar Alterações';
+        event.target.disabled = false;
+    }
 };
