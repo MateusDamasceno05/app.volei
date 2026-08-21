@@ -655,13 +655,19 @@ window.abrirJogo = async (jogoId) => {
                        </button>`;
                        
                 // Botão Cancelar (Apenas Admin)
+                // Botão Cancelar e Sortear (Apenas Admin)
                 let areaAdmin = ehAdmin 
                     ? `<section class="px-6 pt-8 border-t border-zinc-900/50">
                            <div class="text-center space-y-4">
                                <p class="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Área do Organizador</p>
-                               <button onclick="cancelarJogo('${jogoId}')" class="text-red-500/50 font-bold text-sm py-3 px-6 rounded-xl border border-red-500/10 active:bg-red-500/5 active:text-red-500 transition-all">
-                                   <i class="fa-solid fa-circle-xmark mr-2"></i> Cancelar Partida
-                               </button>
+                               <div class="grid grid-cols-2 gap-3">
+                                   <button onclick="abrirModalSorteio()" class="bg-zinc-800 text-white font-bold text-sm py-3 px-4 rounded-xl active:scale-95 transition-all">
+                                       <i class="fa-solid fa-users-gear mr-2 neon-orange"></i> Sortear
+                                   </button>
+                                   <button onclick="cancelarJogo('${jogoId}')" class="bg-red-500/10 text-red-500 font-bold text-sm py-3 px-4 rounded-xl active:bg-red-500/20 transition-all border border-red-500/20">
+                                       <i class="fa-solid fa-trash mr-2"></i> Cancelar
+                                   </button>
+                               </div>
                            </div>
                        </section>`
                     : "";
@@ -1298,4 +1304,121 @@ window.carregarMeusAmigos = () => {
         }
         divAmigos.innerHTML = htmlAmigos;
     });
+};
+
+// ==========================================
+// SISTEMA DE SORTEIO DE TIMES
+// ==========================================
+
+window.abrirModalSorteio = () => {
+    document.getElementById('modal-sorteio').classList.remove('hidden');
+};
+
+window.fecharModalSorteio = () => {
+    document.getElementById('modal-sorteio').classList.add('hidden');
+};
+
+window.executarSorteio = async () => {
+    const modo = document.getElementById('sorteio-modo').value;
+    
+    // Puxa direto a quantidade de equipes definida pelo usuário
+    const qtdTimes = parseInt(document.getElementById('sorteio-qtd-times').value);
+    
+    if (!qtdTimes || qtdTimes < 2) return alert("Defina pelo menos 2 equipes para o sorteio!");
+    
+    // 1. Busca todos os confirmados deste jogo
+    const confirmadosRef = collection(db, "times", timeAtualId, "jogos", jogoAtualId, "confirmados");
+    const snapConfirmados = await getDocs(confirmadosRef);
+    
+    if (snapConfirmados.empty) {
+        return alert("Ninguém confirmou presença ainda!");
+    }
+
+    let jogadores = [];
+    
+    // 2. Monta o array com os dados dos jogadores
+    for (const docConf of snapConfirmados.docs) {
+        const uid = docConf.id;
+        const userSnap = await getDoc(doc(db, "usuarios", uid));
+        
+        if (userSnap.exists()) {
+            const dados = userSnap.data();
+            jogadores.push({
+                uid: uid,
+                nome: dados.nome,
+                genero: dados.genero || "M", 
+                nota: dados.nota || Math.floor(Math.random() * (99 - 70 + 1)) + 70 
+            });
+        }
+    }
+
+    if (jogadores.length < qtdTimes) {
+        return alert(`Você tem apenas ${jogadores.length} confirmados. Não é possível formar ${qtdTimes} equipes.`);
+    }
+
+    // Cria os arrays vazios baseados na quantidade exata que você pediu
+    let times = Array.from({ length: qtdTimes }, () => []);
+
+    // =====================================
+    // LÓGICA 1: BALANCEADO POR OVR (Snake Draft)
+    // =====================================
+    if (modo === 'ovr') {
+        jogadores.sort((a, b) => b.nota - a.nota);
+        
+        let timeAtual = 0;
+        let direcao = 1;
+
+        jogadores.forEach(jogador => {
+            times[timeAtual].push(jogador);
+            timeAtual += direcao;
+            
+            if (timeAtual === qtdTimes) {
+                direcao = -1;
+                timeAtual = qtdTimes - 1;
+            } else if (timeAtual === -1) {
+                direcao = 1;
+                timeAtual = 0;
+            }
+        });
+    } 
+    // =====================================
+    // LÓGICA 2: MISTO (Gênero)
+    // =====================================
+    else if (modo === 'genero') {
+        let homens = jogadores.filter(j => j.genero === 'M').sort(() => Math.random() - 0.5);
+        let mulheres = jogadores.filter(j => j.genero === 'F').sort(() => Math.random() - 0.5);
+        
+        let indexTime = 0;
+        
+        mulheres.forEach(m => {
+            times[indexTime].push(m);
+            indexTime = (indexTime + 1) % qtdTimes;
+        });
+        
+        homens.forEach(h => {
+            times[indexTime].push(h);
+            indexTime = (indexTime + 1) % qtdTimes;
+        });
+    }
+    // =====================================
+    // LÓGICA 3: MANUAL
+    // =====================================
+    else if (modo === 'manual') {
+        fecharModalSorteio();
+        alert("O Modo Manual abrirá a tela de 'Drag & Drop' em breve!");
+        return;
+    }
+
+    // 3. Salva os times sorteados no Firebase
+    try {
+        await updateDoc(doc(db, "times", timeAtualId, "jogos", jogoAtualId), {
+            timesSorteados: times
+        });
+        
+        alert(`Sucesso! Jogadores divididos magicamente em ${qtdTimes} equipes.`);
+        fecharModalSorteio();
+        
+    } catch (e) {
+        alert("Erro ao salvar times: " + e.message);
+    }
 };
