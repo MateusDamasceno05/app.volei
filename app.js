@@ -450,6 +450,7 @@ window.copiarLinkTime = () => {
     navigator.clipboard.writeText(link).then(() => alert("Link copiado! Mande no WhatsApp."));
 };
 
+// ATUALIZAÇÃO 1: Entrar no vestiário e mostrar/esconder painel admin
 window.entrarNoVestiario = async (timeId, nomeTime, adminUid) => {
     esconderTudo();
     timeAtualId = timeId;
@@ -457,20 +458,12 @@ window.entrarNoVestiario = async (timeId, nomeTime, adminUid) => {
     document.getElementById('team-section').classList.remove('hidden');
     document.getElementById('titulo-time').innerText = nomeTime;
 
-    // Controle de botões de Admin
+    // Se for Admin, mostra o painel bonito de convocar/convite
+    const adminPanel = document.getElementById('admin-panel');
     if (usuarioAtual.uid === adminUid) {
-        document.getElementById('btn-chamar-jogo').classList.remove('hidden');
-        document.getElementById('btn-convite-time').classList.remove('hidden');
+        adminPanel.classList.remove('hidden');
     } else {
-        document.getElementById('btn-chamar-jogo').classList.add('hidden');
-        document.getElementById('btn-convite-time').classList.add('hidden');
-    }
-
-    // Puxa o nome do Organizador
-    document.getElementById('nome-admin-time').innerText = "Buscando...";
-    const adminSnap = await getDoc(doc(db, "usuarios", adminUid));
-    if(adminSnap.exists()) {
-        document.getElementById('nome-admin-time').innerText = adminSnap.data().nome;
+        adminPanel.classList.add('hidden');
     }
 
     carregarJogos();
@@ -487,6 +480,7 @@ window.mascaraMoeda = (campo) => {
 
 window.criarJogo = async () => {
     const local = document.getElementById('jogo-local').value;
+    const quadra = document.getElementById('jogo-quadra').value;
     const data = document.getElementById('jogo-data').value;
     const inicio = document.getElementById('jogo-inicio').value;
     const valorSujo = document.getElementById('jogo-valor').value;
@@ -499,12 +493,13 @@ window.criarJogo = async () => {
 
     try {
         await addDoc(collection(db, "times", timeAtualId, "jogos"), {
-            local: local, data: data, horarioInicio: inicio, horarioFim: fim, valorTotal: valorLimpo, dataCriacao: new Date().toISOString()
+            local: local, quadra: quadra, data: data, horarioInicio: inicio, horarioFim: fim, valorTotal: valorLimpo, dataCriacao: new Date().toISOString()
         });
         
         alert("📢 Convocação enviada com sucesso!");
         
         document.getElementById('jogo-local').value = "";
+        document.getElementById('jogo-quadra').value = "";
         document.getElementById('jogo-valor').value = "";
         fecharModalJogo();
         carregarJogos();
@@ -516,19 +511,20 @@ let listenersAtivos = [];
 let unsubJogoAtual = null;
 let unsubConfirmadosAtual = null;
 
-// 1. CARREGA OS MINI-CARDS NO DASHBOARD DO TIME
+// ATUALIZAÇÃO 2: Desenhar os Cards de Jogo na Horizontal
 window.carregarJogos = () => { 
     const divJogos = document.getElementById('lista-jogos');
-    divJogos.innerHTML = "<p style='text-align: center; color: #888;'>Buscando partidas...</p>";
+    divJogos.innerHTML = "<p class='text-zinc-500 text-sm'>Buscando partidas...</p>";
 
-    // Limpa os olheiros do vestiário antigo para não sobrecarregar
     listenersAtivos.forEach(unsub => unsub());
     listenersAtivos = [];
 
-    // Olheiro 1: Vigiando a lista de jogos para criar os mini-cards
     const unsubJogos = onSnapshot(collection(db, "times", timeAtualId, "jogos"), (snapJogos) => {
         if (snapJogos.empty) {
-            divJogos.innerHTML = "<div class='card' style='text-align:center;'><p style='margin:0; color:#888;'>Nenhuma convocação ativa.</p></div>";
+            divJogos.innerHTML = `
+                <div class="game-card p-5 rounded-2xl w-full border border-zinc-800 border-dashed opacity-50 flex items-center justify-center">
+                    <p class="text-zinc-500 text-sm font-bold">Nenhuma convocação ativa.</p>
+                </div>`;
             carregarMembros(); 
             return;
         }
@@ -543,14 +539,20 @@ window.carregarJogos = () => {
             const local = jogo.local || "Quadra";
             const inicio = jogo.horarioInicio || "--:--";
             
-            // Cria o MINI-CARD clicável
+            // CARD DE JOGO NOVO (Tailwind)
             divJogos.innerHTML += `
-                <div class="time-item" onclick="abrirJogo('${jogoId}')" style="border-left: 4px solid #0099ff;">
-                    <div>
-                        <span style="font-weight: bold; color: white; display:block; font-size: 16px;">🏐 ${local}</span>
-                        <span style="color: #888; font-size: 12px;">📅 ${dataF} | ⏰ ${inicio}</span>
+                <div onclick="abrirJogo('${jogoId}')" class="game-card p-5 rounded-2xl space-y-4 cursor-pointer active:scale-95 transition-transform shrink-0">
+                    <div class="flex justify-between items-start">
+                        <span class="bg-neon-orange/10 text-neon-orange text-[10px] font-black px-2 py-1 rounded uppercase">Convocado</span>
+                        <p class="text-zinc-500 text-xs font-bold">📅 ${dataF}</p>
                     </div>
-                    <span style="color: #0099ff; font-size: 20px;">➔</span>
+                    <div>
+                        <h4 class="font-bold text-lg text-white truncate max-w-[180px]">${local}</h4>
+                        <div class="flex items-center gap-2 text-zinc-400 text-sm mt-1">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>${inicio}</span>
+                        </div>
+                    </div>
                 </div>
             `;
         });
@@ -561,36 +563,24 @@ window.carregarJogos = () => {
     listenersAtivos.push(unsubJogos);
 };
 
-// 2. ABRIR A TELA DO JOGO ESPECÍFICO E DESENHAR A QUADRA
+// ATUALIZAÇÃO 4: ABRIR JOGO E MONTAR A NOVA QUADRA
 window.abrirJogo = async (jogoId) => {
     try {
         esconderTudo();
         jogoAtualId = jogoId;
         
-        // Verifica se o HTML da tela do jogo realmente existe
         const telaJogo = document.getElementById('game-section');
-        if (!telaJogo) {
-            alert("ERRO: A tela 'game-section' sumiu do seu index.html!");
-            document.getElementById('team-section').classList.remove('hidden');
-            return;
-        }
+        if (!telaJogo) return alert("Erro: tela de jogo não encontrada.");
         
         telaJogo.classList.remove('hidden');
-        
         const divDetalhes = document.getElementById('detalhes-jogo-ativo');
-        divDetalhes.innerHTML = "<p style='text-align: center; color: #aaa;'>Montando a quadra...</p>";
+        divDetalhes.innerHTML = "<p class='text-zinc-500 text-center mt-20'>Montando a quadra...</p>";
 
-        // Busca quem é o admin
+        // Verifica se é o Admin (para mostrar o botão de cancelar)
+        let ehAdmin = false;
         const timeSnap = await getDoc(doc(db, "times", timeAtualId));
         if(timeSnap.exists() && timeSnap.data().adminUid === usuarioAtual.uid) {
-            const btnCancelar = document.getElementById('btn-cancelar-jogo');
-            if(btnCancelar) {
-                btnCancelar.classList.remove('hidden');
-                btnCancelar.onclick = () => cancelarJogo(jogoId);
-            }
-        } else {
-            const btnCancelar = document.getElementById('btn-cancelar-jogo');
-            if(btnCancelar) btnCancelar.classList.add('hidden');
+            ehAdmin = true;
         }
 
         if (unsubJogoAtual) unsubJogoAtual();
@@ -598,7 +588,7 @@ window.abrirJogo = async (jogoId) => {
 
         unsubJogoAtual = onSnapshot(doc(db, "times", timeAtualId, "jogos", jogoId), (jogoSnap) => {
             if(!jogoSnap.exists()) {
-                divDetalhes.innerHTML = "<p style='text-align:center; color: #ff4444;'>Esta partida foi encerrada ou cancelada.</p>";
+                divDetalhes.innerHTML = "<p class='text-red-500 text-center mt-20 font-bold'>Esta partida foi encerrada ou cancelada.</p>";
                 return;
             }
             
@@ -613,53 +603,124 @@ window.abrirJogo = async (jogoId) => {
                     const jogador = conf.data();
                     if (conf.id === usuarioAtual.uid) euJaConfirmei = true;
                     const primeiroNome = jogador.nome ? jogador.nome.split(" ")[0] : "Player";
-                    chipsJogadores += `<div class="jogador-chip">${primeiroNome}</div>`;
+                    
+                    // Chip novo do jogador na quadra
+                    chipsJogadores += `<div class="player-chip px-3 py-1 rounded-full text-[10px] font-bold text-white">${primeiroNome}</div>`;
                 });
 
+                // Dados da Partida
                 const dataF = jogo.data ? jogo.data.split('-').reverse().join('/') : "A definir";
                 const valorQuadra = jogo.valorTotal || 0;
                 const localJogo = jogo.local || "Arena";
                 const inicio = jogo.horarioInicio || "--:--";
                 const fim = jogo.horarioFim || "--:--";
                 
-                let textoRateio = "";
+                // Lógica de Rateio
+                let rateioHtml = "";
                 if (quantidadeConfirmados > 0) {
                     const valorPorPessoa = valorQuadra / quantidadeConfirmados;
-                    const valorF = valorPorPessoa.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                    textoRateio = `<div class="valor-destaque">${valorF}</div><p style="margin:0; font-size: 12px; color: #888;">por pessoa (${quantidadeConfirmados} confirmados)</p>`;
+                    const valorF = valorPorPessoa.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                    const totalF = valorQuadra.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                    
+                    rateioHtml = `
+                        <div class="space-y-1">
+                            <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Total Quadra</p>
+                            <p class="text-xl font-extrabold tracking-tight">R$ ${totalF}</p>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="neon-orange text-[10px] font-black uppercase tracking-widest">Por Pessoa</p>
+                            <p class="text-2xl font-black tracking-tight text-white">R$ ${valorF}</p>
+                        </div>
+                    `;
                 } else {
-                    const valorTotalF = valorQuadra.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                    textoRateio = `<p style="margin:0; color: #aaa;">Valor total: ${valorTotalF}<br><span style="font-size: 12px;">(Ninguém confirmou ainda)</span></p>`;
+                    const totalF = valorQuadra.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                    rateioHtml = `
+                        <div class="col-span-2 text-center py-2 border border-dashed border-zinc-800 rounded-xl">
+                            <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Valor Total (Ninguém confirmou)</p>
+                            <p class="text-xl font-extrabold tracking-tight text-white">R$ ${totalF}</p>
+                        </div>
+                    `;
                 }
 
+                // Botão de Confirmação
                 let botaoAcao = euJaConfirmei 
-                    ? `<button class="btn-secondary" style="color: #00cc66; cursor: default; width: 100%;">✅ Presença Confirmada!</button>`
-                    : `<button class="btn-success" onclick="confirmarPresenca('${jogoId}')" style="width: 100%;">🙋‍♂️ Eu Vou!</button>`;
+                    ? `<button class="w-full bg-zinc-900 border border-zinc-800 text-green-500 font-black py-5 rounded-2xl text-lg flex items-center justify-center gap-3 cursor-default">
+                           <i class="fa-solid fa-circle-check"></i> PRESENÇA CONFIRMADA
+                       </button>`
+                    : `<button onclick="confirmarPresenca('${jogoId}')" class="action-button-main w-full bg-neon-orange text-white font-black py-5 rounded-2xl text-lg flex items-center justify-center gap-3 active:scale-95 transition-all">
+                           <i class="fa-solid fa-hand-raised"></i> EU VOU!
+                       </button>`;
+                       
+                // Botão Cancelar (Apenas Admin)
+                let areaAdmin = ehAdmin 
+                    ? `<section class="px-6 pt-8 border-t border-zinc-900/50">
+                           <div class="text-center space-y-4">
+                               <p class="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Área do Organizador</p>
+                               <button onclick="cancelarJogo('${jogoId}')" class="text-red-500/50 font-bold text-sm py-3 px-6 rounded-xl border border-red-500/10 active:bg-red-500/5 active:text-red-500 transition-all">
+                                   <i class="fa-solid fa-circle-xmark mr-2"></i> Cancelar Partida
+                               </button>
+                           </div>
+                       </section>`
+                    : "";
 
+                // MONTAGEM DO HTML FINAL
                 divDetalhes.innerHTML = `
-                    <div class="card" style="padding: 0; overflow: hidden; border: 1px solid #333; margin-top: 20px;">
-                        <div style="padding: 15px; border-bottom: 1px solid #333;">
-                            <h4 style="margin: 0 0 5px 0; color: #0099ff; font-size: 20px;">🏐 ${localJogo}</h4>
-                            <p style="margin: 0; color: #ccc;">📅 ${dataF} | ⏰ ${inicio} às ${fim}</p>
+                    <header class="p-6 space-y-2">
+                        <button onclick="voltarParaVestiario()" class="mb-4 text-zinc-500 flex items-center gap-2 font-bold text-sm active:scale-95 transition-all">
+                            <i class="fa-solid fa-chevron-left"></i> Voltar
+                        </button>
+                        <h1 class="text-2xl font-black tracking-tight">${localJogo}</h1>
+                        <div class="flex items-center gap-4 text-zinc-400 text-sm font-medium">
+                            <div class="flex items-center gap-1.5">
+                                <i class="fa-regular fa-calendar neon-orange"></i> <span>${dataF}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <i class="fa-regular fa-clock neon-orange"></i> <span>${inicio} - ${fim}</span>
+                            </div>
                         </div>
-                        <div style="padding: 15px;">
-                            <div class="quadra-container">
-                                <div class="quadra-meio"></div>
-                                <div class="linha-ataque-cima"></div>
-                                <div class="linha-ataque-baixo"></div>
-                                <div class="jogadores-quadra">
-                                    ${chipsJogadores}
+                    </header>
+
+                    <main class="space-y-8">
+                        <section id="court-view" class="px-6">
+                            <div class="court-bg rounded-3xl p-6 border border-zinc-800 shadow-2xl">
+                                <div class="text-center mb-6">
+                                    <span class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Visualização da Quadra</span>
+                                </div>
+                                <div class="court-lines aspect-[3/4] rounded-lg flex flex-col justify-around p-4">
+                                    <div class="court-net"></div>
+                                    <div class="flex flex-wrap justify-center gap-2 z-10">
+                                        ${chipsJogadores}
+                                    </div>
+                                </div>
+                                <div class="mt-6 flex justify-center items-center gap-2">
+                                    <div class="flex -space-x-1">
+                                        <div class="w-6 h-6 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[8px] font-bold text-white">${quantidadeConfirmados}</div>
+                                    </div>
+                                    <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-wider">Jogadores Confirmados</p>
                                 </div>
                             </div>
-                        </div>
-                        <div style="padding: 15px; background: #1a1a1a;">
-                            <div class="painel-rateio">
-                                <p style="margin: 0 0 5px 0; font-weight: bold; color: white;">Rateio da Quadra</p>
-                                ${textoRateio}
+                        </section>
+
+                        <section id="finance" class="px-6">
+                            <div class="financial-card rounded-2xl p-6 space-y-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                                        <i class="fa-solid fa-wallet text-green-500"></i>
+                                    </div>
+                                    <h3 class="font-bold text-zinc-300">Rateio da Partida</h3>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    ${rateioHtml}
+                                </div>
                             </div>
+                        </section>
+
+                        <section class="px-6 pb-4">
                             ${botaoAcao}
-                        </div>
-                    </div>
+                        </section>
+                        
+                        ${areaAdmin}
+                    </main>
                 `;
             });
         });
@@ -697,16 +758,18 @@ window.confirmarPresenca = async (jogoIdParam) => {
 };
 
 
-// 9. ELENCO DO TIME (Membros)
+// ATUALIZAÇÃO 3: Desenhar os cards do Elenco e atualizar o contador
 window.carregarMembros = async () => {
     const divMembros = document.getElementById('lista-membros');
-    divMembros.innerHTML = "<p style='text-align: center;'>Buscando elenco...</p>";
+    const contadorMembros = document.getElementById('contador-membros');
+    divMembros.innerHTML = "<p class='text-zinc-500 text-center text-sm'>Buscando elenco...</p>";
 
     try {
         const docSnap = await getDoc(doc(db, "times", timeAtualId));
         if (!docSnap.exists()) return;
         
         const membrosIds = docSnap.data().membros || [];
+        contadorMembros.innerText = membrosIds.length; // Atualiza o número no HTML
         divMembros.innerHTML = "";
 
         for (const uid of membrosIds) {
@@ -714,28 +777,32 @@ window.carregarMembros = async () => {
             if (userSnap.exists()) {
                 const u = userSnap.data();
                 
-                let badgeAdmin = (uid === docSnap.data().adminUid) 
-                    ? `<span style="background: #ff6600; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 8px;">ADMIN</span>` 
-                    : "";
-
+                const ehAdmin = (uid === docSnap.data().adminUid);
+                const badgeAdmin = ehAdmin ? `<span class="bg-zinc-800 text-zinc-400 text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter">Admin</span>` : "";
+                const borderAvatar = ehAdmin ? "border-neon-orange" : "border-zinc-800";
+                const corTextoAvatar = ehAdmin ? "text-neon-orange" : "text-zinc-500";
+                
                 const letraInicial = u.nome ? u.nome.charAt(0).toUpperCase() : "?";
-                const pontuacaoGeral = "5.0"; 
+                const primeiroNome = u.nome ? u.nome.split(" ")[0] : "Jogador";
 
+                // CARD DO ELENCO NOVO (Tailwind)
                 divMembros.innerHTML += `
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #333; padding: 10px 0;">
-                        <div style="display: flex; align-items: center;">
-                            <div style="width: 40px; height: 40px; border-radius: 20px; background: #333; color: #ff6600; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; margin-right: 15px;">
+                    <div class="player-card p-3 rounded-2xl flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full border-2 ${borderAvatar} flex items-center justify-center bg-zinc-900 ${corTextoAvatar} font-bold text-xl">
                                 ${letraInicial}
                             </div>
                             <div>
-                                <p style="margin: 0; font-weight: bold; color: #fff;">${u.nome} ${badgeAdmin}</p>
-                                <p style="margin: 0; font-size: 12px; color: #888;">Nível Básico</p>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="font-bold text-white">${primeiroNome}</h4>
+                                    ${badgeAdmin}
+                                </div>
+                                <p class="text-zinc-500 text-xs">Jogador(a)</p>
                             </div>
                         </div>
-                        
-                        <div style="background: #1a1a1a; border: 1px solid #444; padding: 5px 10px; border-radius: 8px; text-align: center;">
-                            <p style="margin: 0; font-size: 10px; color: #aaa;">Nota</p>
-                            <p style="margin: 0; font-weight: bold; color: #00cc66;">⭐ ${pontuacaoGeral}</p>
+                        <div class="bg-zinc-900 px-3 py-1.5 rounded-xl border border-zinc-800 flex items-center gap-1">
+                            <i class="fa-solid fa-star text-[10px] text-zinc-500"></i>
+                            <span class="text-sm font-black text-zinc-400">5.0</span>
                         </div>
                     </div>
                 `;
@@ -743,9 +810,8 @@ window.carregarMembros = async () => {
         }
     } catch (e) {
         console.error("Erro Elenco:", e);
-        divMembros.innerHTML = "<p>Erro ao listar elenco.</p>";
+        divMembros.innerHTML = "<p class='text-red-500 text-center'>Erro ao listar elenco.</p>";
     }
-
 };
 
 // NOVA FUNÇÃO: Atualiza os dados do vestiário manualmente
@@ -792,3 +858,29 @@ window.cancelarJogo = async (jogoId) => {
     }
 };
 
+// ==========================================
+// NAVEGAÇÃO INTERNA DO VESTIÁRIO (TABS)
+// ==========================================
+
+window.mudarAbaVestiario = (abaDesejada) => {
+    // 1. Esconde todas as abas
+    const abas = ['time', 'jogos', 'stats', 'ajustes'];
+    abas.forEach(aba => {
+        document.getElementById(`aba-${aba}`).classList.add('hidden');
+    });
+
+    // 2. Mostra a aba que o usuário clicou
+    document.getElementById(`aba-${abaDesejada}`).classList.remove('hidden');
+
+    // 3. Reseta a cor de todos os botões do menu de baixo para cinza (zinc-600)
+    const botoes = document.querySelectorAll('.nav-btn');
+    botoes.forEach(btn => {
+        btn.classList.remove('neon-orange');
+        btn.classList.add('text-zinc-600');
+    });
+
+    // 4. Pinta o botão clicado de laranja (neon-orange)
+    const btnAtivo = document.getElementById(`btn-nav-${abaDesejada}`);
+    btnAtivo.classList.remove('text-zinc-600');
+    btnAtivo.classList.add('neon-orange');
+};

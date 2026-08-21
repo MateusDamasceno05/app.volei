@@ -26,7 +26,7 @@
             background: rgba(24, 24, 27, 0.8);
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.05);
-        } /* <- Faltava fechar essa chave! */
+        }
 
         .team-card {
             background: #18181b;
@@ -78,6 +78,54 @@
         .painel-rateio { background: #242424; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #333; margin-bottom: 15px; }
         .valor-destaque { font-size: 28px; color: #00cc66; font-weight: bold; margin: 5px 0; }
     </style>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #09090b;
+            color: #fafafa;
+        }
+
+        .neon-orange { color: #ff5f1f; }
+        .bg-neon-orange { background-color: #ff5f1f; }
+        
+        .court-bg {
+            background-color: #1c1917; /* Stone 900 */
+            background-image: radial-gradient(#292524 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .court-lines {
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .court-net {
+            height: 2px;
+            background: rgba(255, 255, 255, 0.4);
+            width: 100%;
+            position: absolute;
+            top: 50%;
+        }
+
+        .player-chip {
+            background: rgba(255, 95, 31, 0.15);
+            border: 1px solid #ff5f1f;
+            backdrop-filter: blur(4px);
+        }
+
+        .financial-card {
+            background: linear-gradient(to bottom right, #18181b, #09090b);
+            border: 1px solid #27272a;
+        }
+
+        .action-button-main {
+            box-shadow: 0 8px 32px rgba(255, 95, 31, 0.3);
+        }
+    </style>
+
 </head>
 <body>
 
@@ -212,63 +260,130 @@
     </div>
 </div>
 
-<!-- ÁREA 3: O VESTIÁRIO (Ainda no design antigo, seguro!) -->
-<div class="container hidden" id="team-section">
-    <div class="top-bar">
-        <button class="btn-secondary" onclick="voltarParaLobby()" style="width: auto; padding: 10px 15px; font-size: 14px;">← Sair</button>
-        <h3 style="margin: 0; color: #aaa;">Vestiário</h3>
-        <button id="btn-atualizar" class="btn-secondary" onclick="atualizarVestiario()" style="width: auto; padding: 10px 15px; font-size: 14px; background-color: #333;">🔄</button>
-    </div>
-
-    <div class="card" style="border-left: 4px solid #ffcc00; margin-bottom: 15px;">
-        <h2 id="titulo-time" style="margin-top: 0; color: white; font-size: 26px;">Nome do Time</h2>
-        <p style="margin: 5px 0;">👑 Organizador: <b id="nome-admin-time" style="color: #ff6600;">...</b></p>
-        
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button id="btn-chamar-jogo" class="btn-primary hidden" onclick="abrirModalJogo()" style="flex: 1; background-color: #0099ff; font-size: 14px; padding: 10px;">📢 Novo Jogo</button>
-            <button id="btn-convite-time" class="btn-secondary hidden" onclick="copiarLinkTime()" style="flex: 1; font-size: 14px; padding: 10px;">🔗 Link Convite</button>
+<!-- ÁREA 3: O VESTIÁRIO (Design Novo Tailwind) -->
+<div id="team-section" class="hidden w-full min-h-screen relative pb-24 overflow-x-hidden bg-[#09090b]">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 glass-header border-b border-zinc-900 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <button onclick="voltarParaLobby()" class="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 active:scale-95 transition-all">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <!-- ID titulo-time adicionado aqui -->
+            <h1 class="font-extrabold text-lg uppercase tracking-tight truncate max-w-[200px]" id="titulo-time">Time</h1>
         </div>
-    </div>
+        <div class="w-10 h-10 rounded-full bg-orange-600/10 border border-neon-orange/20 flex items-center justify-center">
+            <i class="fa-solid fa-volleyball neon-orange"></i>
+        </div>
+    </header>
 
-    <div class="card" style="padding: 15px; background: #1a1a1a; border: 1px dashed #444;">
-        <h3 style="margin: 0 0 10px 0; font-size: 14px; color: #aaa;">📊 Estatísticas da Temporada</h3>
-        <div style="display: flex; justify-content: space-between; text-align: center; gap: 5px;">
-            <div style="background: #242424; padding: 10px; border-radius: 8px; flex: 1;">
-                <p style="margin: 0; font-size: 20px;">🔥</p>
-                <p style="margin: 5px 0 0 0; font-size: 10px; color: #888;">MVP</p>
-                <b style="font-size: 12px; color: white;">Em breve</b>
-            </div>
-            <div style="background: #242424; padding: 10px; border-radius: 8px; flex: 1;">
-                <p style="margin: 0; font-size: 20px;">🧱</p>
-                <p style="margin: 5px 0 0 0; font-size: 10px; color: #888;">Paredão</p>
-                <b style="font-size: 12px; color: white;">Em breve</b>
-            </div>
-            <div style="background: #242424; padding: 10px; border-radius: 8px; flex: 1;">
-                <p style="margin: 0; font-size: 20px;">🥬</p>
-                <p style="margin: 5px 0 0 0; font-size: 10px; color: #888;">Mão de Alface</p>
-                <b style="font-size: 12px; color: white;">Em breve</b>
+<main class="py-6 h-full">
+        <!-- ABA 1: TIME (A que já temos pronta) -->
+        <div id="aba-time" class="space-y-8">
+            <section id="admin-panel" class="px-6 hidden">
+                <div class="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-5 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-black text-zinc-500 uppercase tracking-widest">Painel do Admin</h3>
+                        <span class="flex h-2 w-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="abrirModalJogo()" class="bg-neon-orange text-white font-bold py-3 rounded-xl shadow-neon flex items-center justify-center gap-2 active:scale-95 transition-all text-sm">
+                            <i class="fa-solid fa-calendar-plus"></i> Convocar
+                        </button>
+                        <button onclick="copiarLinkTime()" class="bg-zinc-800 text-zinc-200 font-bold py-3 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all text-sm border border-zinc-700">
+                            <i class="fa-solid fa-link"></i> Convite
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="space-y-4">
+                <div class="px-6 flex items-center justify-between">
+                    <h3 class="font-bold text-xl tracking-tight text-white">Próximos Jogos</h3>
+                    <button id="btn-atualizar" onclick="atualizarVestiario()" class="text-zinc-500 text-sm font-bold active:scale-95 transition-all"><i class="fa-solid fa-rotate-right"></i> Recarregar</button>
+                </div>
+                <div id="lista-jogos" class="flex gap-4 overflow-x-auto px-6 pb-2 hide-scrollbar"></div>
+            </section>
+
+            <section class="px-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-xl tracking-tight text-white">Elenco</h3>
+                    <div class="flex items-center gap-2 text-zinc-500">
+                        <i class="fa-solid fa-users text-sm"></i>
+                        <span id="contador-membros" class="text-sm font-bold">0</span>
+                    </div>
+                </div>
+                <div id="lista-membros" class="space-y-3"></div>
+            </section>
+        </div>
+
+        <!-- ABA 2: TODOS OS JOGOS (Em breve) -->
+        <div id="aba-jogos" class="hidden px-6 space-y-4">
+            <h3 class="font-bold text-xl tracking-tight text-white">Histórico de Jogos</h3>
+            <div class="p-6 rounded-2xl border border-zinc-800 border-dashed text-center">
+                <i class="fa-solid fa-calendar text-3xl text-zinc-700 mb-3"></i>
+                <p class="text-zinc-500 text-sm">Em breve, todo o histórico de partidas do time aparecerá aqui.</p>
             </div>
         </div>
-    </div>
 
-    <h3 style="margin: 20px 0 10px 0;">Próximas Partidas</h3>
-    <div id="lista-jogos">
-        <p style="text-align: center;">Buscando jogos...</p>
-    </div>
+        <!-- ABA 3: ESTATÍSTICAS (Em breve) -->
+        <div id="aba-stats" class="hidden px-6 space-y-4">
+            <h3 class="font-bold text-xl tracking-tight text-white">Estatísticas</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Usando a ideia que você tinha no design antigo! -->
+                <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-xl text-center">
+                    <p class="text-3xl mb-1">🔥</p>
+                    <p class="text-zinc-500 text-[10px] uppercase font-bold">MVP</p>
+                    <p class="text-white text-sm font-bold mt-1">Em breve</p>
+                </div>
+                <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-xl text-center">
+                    <p class="text-3xl mb-1">🧱</p>
+                    <p class="text-zinc-500 text-[10px] uppercase font-bold">Paredão</p>
+                    <p class="text-white text-sm font-bold mt-1">Em breve</p>
+                </div>
+            </div>
+        </div>
 
-    <div class="card" style="margin-top: 20px;">
-        <h3 style="margin-bottom: 5px;">Elenco</h3>
-        <div id="lista-membros"></div>
-    </div>
+        <!-- ABA 4: AJUSTES (Em breve) -->
+        <div id="aba-ajustes" class="hidden px-6 space-y-4">
+            <h3 class="font-bold text-xl tracking-tight text-white">Ajustes do Time</h3>
+            <div class="space-y-2">
+                <button onclick="voltarParaLobby()" class="w-full bg-zinc-900 border border-zinc-800 text-white font-bold py-4 rounded-xl flex items-center justify-between px-5 transition-all active:scale-95">
+                    <span>Sair do Vestiário</span>
+                    <i class="fa-solid fa-arrow-right-from-bracket text-zinc-500"></i>
+                </button>
+                <button class="w-full bg-red-500/10 border border-red-500/20 text-red-500 font-bold py-4 rounded-xl flex items-center justify-between px-5 transition-all active:scale-95">
+                    <span>Abandonar Time</span>
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation Atualizada com os IDs e Onclicks -->
+    <nav class="fixed bottom-0 inset-x-0 bg-zinc-950/90 backdrop-blur-xl border-t border-zinc-900 px-8 py-4 flex items-center justify-between z-50">
+        <button id="btn-nav-time" onclick="mudarAbaVestiario('time')" class="nav-btn flex flex-col items-center gap-1 neon-orange">
+            <i class="fa-solid fa-house-chimney text-xl"></i>
+            <span class="text-[10px] font-bold uppercase">Time</span>
+        </button>
+        <button id="btn-nav-jogos" onclick="mudarAbaVestiario('jogos')" class="nav-btn flex flex-col items-center gap-1 text-zinc-600 transition-colors">
+            <i class="fa-solid fa-calendar-days text-xl"></i>
+            <span class="text-[10px] font-bold uppercase">Jogos</span>
+        </button>
+        <button id="btn-nav-stats" onclick="mudarAbaVestiario('stats')" class="nav-btn flex flex-col items-center gap-1 text-zinc-600 transition-colors">
+            <i class="fa-solid fa-chart-simple text-xl"></i>
+            <span class="text-[10px] font-bold uppercase">Stats</span>
+        </button>
+        <button id="btn-nav-ajustes" onclick="mudarAbaVestiario('ajustes')" class="nav-btn flex flex-col items-center gap-1 text-zinc-600 transition-colors">
+            <i class="fa-solid fa-gear text-xl"></i>
+            <span class="text-[10px] font-bold uppercase">Ajustes</span>
+        </button>
+    </nav>
 </div>
 
 <!-- ÁREA 4: A QUADRA (Ainda no design antigo) -->
-<div class="container hidden" id="game-section">
-    <div class="top-bar">
-        <button class="btn-secondary" onclick="voltarParaVestiario()" style="width: auto; padding: 10px 15px; font-size: 14px;">← Voltar</button>
-        <h3 style="margin: 0; color: #0099ff;">Partida Ativa</h3>
-        <button id="btn-cancelar-jogo" class="btn-danger hidden" style="width: auto; padding: 10px 15px; font-size: 14px;">🗑️ Cancelar</button>
-    </div>
+<!-- ÁREA 4: DETALHES DO JOGO (A Quadra) -->
+<div id="game-section" class="hidden w-full min-h-screen pb-12 bg-[#09090b]">
+    <!-- Header Injetado via JS -->
     <div id="detalhes-jogo-ativo"></div>
 </div>
 
@@ -287,7 +402,8 @@
 <div id="modal-chamar-jogo" class="container hidden" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; max-width: 100%;">
     <div class="card card-admin" style="width: 100%; max-width: 400px; border-color: #0099ff; margin: auto;">
         <h3 style="color: #0099ff;">Configurar Partida</h3>
-        <input type="text" id="jogo-local" placeholder="Local e Quadra">
+        <input type="text" id="jogo-local" placeholder="Local">
+        <input type="text" id="jogo-quadra" placeholder="Quadra (Ex: Quadra 1)">
         <input type="date" id="jogo-data">
         <div style="display: flex; gap: 10px; align-items: center; margin: 8px 0 16px 0;">
             <div style="flex: 1;">
