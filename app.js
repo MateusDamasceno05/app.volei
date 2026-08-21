@@ -944,43 +944,74 @@ window.salvarConfigPerfil = async () => {
 
     if(!nome) return alert("O nome não pode ficar vazio!");
 
-    // Muda o botão para "Salvando..."
-    event.target.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
-    event.target.disabled = true;
+    const btnSalvar = document.querySelector('#modal-config-perfil button[onclick="salvarConfigPerfil()"]');
+    btnSalvar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+    btnSalvar.disabled = true;
 
     try {
         let dadosAtualizados = { nome, telefone, posicao };
 
-        // Se o cara escolheu uma foto nova, nós convertemos ela
+        // Se o usuário selecionou uma foto, vamos redimensionar e comprimir
         if (fotoInput.files && fotoInput.files[0]) {
             const file = fotoInput.files[0];
-            const reader = new FileReader();
             
-            // Promessa para esperar a foto carregar
-            await new Promise((resolve) => {
-                reader.onloadend = () => {
-                    dadosAtualizados.foto = reader.result; // Salva como Base64
-                    resolve();
-                };
-                reader.readAsDataURL(file);
-            });
+            // Função interna para redimensionar a imagem em um Canvas do navegador
+            const comprimirImagem = (arquivoParaComprimir) => {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(arquivoParaComprimir);
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const MAX_WIDTH = 300; // Largura máxima ideal para foto de perfil
+                            const MAX_HEIGHT = 300; // Altura máxima
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > height) {
+                                if (width > MAX_WIDTH) {
+                                    height *= MAX_WIDTH / width;
+                                    width = MAX_WIDTH;
+                                }
+                            } else {
+                                if (height > MAX_HEIGHT) {
+                                    width *= MAX_HEIGHT / height;
+                                    height = MAX_HEIGHT;
+                                }
+                            }
+
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+                            
+                            // Converte para JPEG com qualidade de 70% (fica leve e com ótima qualidade)
+                            resolve(canvas.toDataURL('image/jpeg', 0.7));
+                        };
+                    };
+                });
+            };
+
+            // Executa a compressão da imagem pesada
+            dadosAtualizados.foto = await comprimirImagem(file);
         }
 
-        // Salva tudo no banco de dados do Firebase
+        // Salva os dados otimizados no Firestore
         await updateDoc(doc(db, "usuarios", usuarioAtual.uid), dadosAtualizados);
         
-        // Atualiza nossa variável local e a tela
         perfilUsuario = { ...perfilUsuario, ...dadosAtualizados };
         alert("Perfil atualizado com sucesso!");
         
         fecharConfigPerfil();
-        abrirMeuPerfil(); // Recarrega a tela de perfil
+        abrirMeuPerfil();
 
     } catch (erro) {
         alert("Erro ao salvar: " + erro.message);
+        console.error(erro);
     } finally {
-        // Volta o botão ao normal
-        event.target.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar Alterações';
-        event.target.disabled = false;
+        btnSalvar.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar Alterações';
+        btnSalvar.disabled = false;
     }
 };
