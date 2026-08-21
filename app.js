@@ -40,8 +40,8 @@ onAuthStateChanged(auth, async (user) => {
         // Se o usuário já tem perfil salvo no banco, segue o jogo
         if (userSnap.exists()) {
             perfilUsuario = userSnap.data();
-            document.getElementById('nome-usuario-lobby').innerText = user.displayName; // ou a variável que você usa
-            
+            document.getElementById('nome-usuario-lobby').innerText = perfilUsuario.nome.split(" ")[0];
+
             if (conviteId) {
                 verificarConvite();
             } else {

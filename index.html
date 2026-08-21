@@ -5,52 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inimigos da Manchete</title>
     <link rel="manifest" href="manifest.json">
-    <style>
-        /* Estilos Base Minimalista */
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; background-color: #121212; color: #f0f0f0; margin: 0; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 420px; box-sizing: border-box; }
-        h2 { font-size: 24px; font-weight: 700; margin-bottom: 5px; color: #ff6600; }
-        h3 { font-size: 18px; font-weight: 600; margin-top: 0; }
-        p { color: #888; font-size: 14px; margin-top: 0; }
-        
-        /* Inputs */
-        input { width: 100%; padding: 14px; margin: 8px 0 16px 0; box-sizing: border-box; font-size: 16px; border-radius: 8px; border: none; background-color: #242424; color: white; outline: none; }
-        input:focus { box-shadow: 0 0 0 2px #ff6600; }
-        input[readonly] { background-color: #1a1a1a; color: #666; }
-        
-        /* Botõe */
-        button { width: 100%; padding: 14px; margin: 8px 0; font-size: 16px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-primary { background-color: #ff6600; color: white; }
-        .btn-primary:active { transform: scale(0.98); }
-        .btn-secondary { background-color: #2a2a2a; color: white; }
-        .btn-success { background-color: #00cc66; color: white; }
-        .btn-danger { background-color: #ff4444; color: white; }
-        .btn-text { background-color: transparent; color: #888; padding: 10px; }
-        
-        /* Cards e Layout */
-        .card { background-color: #1e1e1e; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .card-admin { border-left: 4px solid #ff6600; }
-        .hidden { display: none !important; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .time-item { background: #242424; padding: 15px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; border: 1px solid #333; }
-        .time-item:active { transform: scale(0.98); background: #2a2a2a; }
-
-        /* A Quadra de Vôlei CSS */
-        .quadra-container { background-color: #d97736; border: 3px solid #ffffff; border-radius: 4px; position: relative; height: 220px; margin: 15px 0; display: flex; flex-direction: column; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.3); }
-        .quadra-meio { position: absolute; top: 50%; width: 100%; height: 4px; background-color: #ffffff; transform: translateY(-50%); z-index: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .linha-ataque-cima { position: absolute; top: 33%; width: 100%; border-top: 2px dashed rgba(255,255,255,0.6); }
-        .linha-ataque-baixo { position: absolute; bottom: 33%; width: 100%; border-bottom: 2px dashed rgba(255,255,255,0.6); }
-        .jogadores-quadra { position: absolute; top: 0; left: 0; right: 0; bottom: 0; padding: 10px; display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: center; gap: 6px; z-index: 2; }
-        .jogador-chip { background: #121212; color: #ffffff; padding: 4px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; border: 1px solid #ff6600; box-shadow: 0 2px 4px rgba(0,0,0,0.4); }
-
-        /* Painel de Rateio */
-        .painel-rateio { background: #242424; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #333; margin-bottom: 15px; }
-        .valor-destaque { font-size: 28px; color: #00cc66; font-weight: bold; margin: 5px 0; }
-    </style>
-
+    
     <!-- Tailwind CSS e FontAwesome (Visual Novo) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- CSS DO TAILWIND (NOVO) -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
         body {
@@ -66,8 +26,8 @@
             background: rgba(24, 24, 27, 0.8);
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.05);
+        } /* <- Faltava fechar essa chave! */
 
-        /* Adicione isto no seu <style> atual */
         .team-card {
             background: #18181b;
             border: 1px solid #27272a;
@@ -81,19 +41,51 @@
             background: linear-gradient(135deg, #18181b 0%, #27272a 100%);
             border: 1px dashed #ff5f1f;
         }
-        }
+    </style>
+
+    <!-- CSS ANTIGO (Isolado apenas para as telas não atualizadas) -->
+    <style>
+        .hidden { display: none !important; }
+        /* Container centralizado para as telas antigas não quebrarem no PC */
+        .container { width: 100%; max-width: 420px; margin: 0 auto; padding: 20px; box-sizing: border-box; }
+        
+        .container h2 { font-size: 24px; font-weight: 700; margin-bottom: 5px; color: #ff6600; }
+        .container h3 { font-size: 18px; font-weight: 600; margin-top: 0; }
+        .container p { color: #888; font-size: 14px; margin-top: 0; }
+        
+        .container input { width: 100%; padding: 14px; margin: 8px 0 16px 0; box-sizing: border-box; font-size: 16px; border-radius: 8px; border: none; background-color: #242424; color: white; outline: none; }
+        .container input:focus { box-shadow: 0 0 0 2px #ff6600; }
+        
+        .container button { width: 100%; padding: 14px; margin: 8px 0; font-size: 16px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-primary { background-color: #ff6600; color: white; }
+        .btn-secondary { background-color: #2a2a2a; color: white; }
+        .btn-success { background-color: #00cc66; color: white; }
+        .btn-danger { background-color: #ff4444; color: white; }
+        .btn-text { background-color: transparent; color: #888; padding: 10px; }
+        
+        .card { background-color: #1e1e1e; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .card-admin { border-left: 4px solid #ff6600; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        /* A Quadra de Vôlei CSS (Intacta) */
+        .quadra-container { background-color: #d97736; border: 3px solid #ffffff; border-radius: 4px; position: relative; height: 220px; margin: 15px 0; display: flex; flex-direction: column; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.3); }
+        .quadra-meio { position: absolute; top: 50%; width: 100%; height: 4px; background-color: #ffffff; transform: translateY(-50%); z-index: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .linha-ataque-cima { position: absolute; top: 33%; width: 100%; border-top: 2px dashed rgba(255,255,255,0.6); }
+        .linha-ataque-baixo { position: absolute; bottom: 33%; width: 100%; border-bottom: 2px dashed rgba(255,255,255,0.6); }
+        .jogadores-quadra { position: absolute; top: 0; left: 0; right: 0; bottom: 0; padding: 10px; display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: center; gap: 6px; z-index: 2; }
+        .jogador-chip { background: #121212; color: #ffffff; padding: 4px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; border: 1px solid #ff6600; box-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+
+        .painel-rateio { background: #242424; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #333; margin-bottom: 15px; }
+        .valor-destaque { font-size: 28px; color: #00cc66; font-weight: bold; margin: 5px 0; }
     </style>
 </head>
 <body>
 
 <!-- TELA 1: LOGIN (Design Novo) -->
 <div id="login-section" class="hidden w-full min-h-screen flex flex-col items-center justify-center p-6 overflow-hidden relative">
-    
-    <!-- Background Decoration -->
     <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-orange-600/10 blur-[100px] rounded-full -z-10"></div>
     <div class="absolute -top-20 -left-20 w-64 h-64 bg-orange-600/10 blur-[100px] rounded-full -z-10"></div>
 
-    <!-- Logo & Welcome -->
     <div class="w-full max-w-sm mb-12 text-center z-10">
         <div class="mb-6 inline-flex items-center justify-center w-24 h-24 rounded-full bg-zinc-900 border-2 border-neon-orange shadow-neon">
             <i class="fa-solid fa-volleyball text-4xl neon-orange animate-bounce-slow"></i>
@@ -102,30 +94,23 @@
         <p class="text-zinc-400 font-medium">Gestão de vôlei de praia amador</p>
     </div>
 
-    <!-- Login Container -->
     <div class="w-full max-w-sm space-y-6 z-10">
-        
-        <!-- Social Login (Conectado ao JS) -->
         <button onclick="loginComGoogle()" class="w-full flex items-center justify-center gap-3 bg-white text-black font-bold py-4 px-6 rounded-xl transition-all active:scale-95">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5">
             Entrar com Google
         </button>
 
-        <!-- Divider -->
         <div class="flex items-center gap-4 py-2">
             <div class="h-px flex-1 bg-zinc-800"></div>
             <span class="text-xs font-bold text-zinc-500 uppercase tracking-widest">Ou use seu E-mail</span>
             <div class="h-px flex-1 bg-zinc-800"></div>
         </div>
 
-        <!-- Form Fields -->
         <div class="space-y-4">
             <div class="space-y-2">
                 <label for="login-email" class="text-sm font-semibold text-zinc-300 ml-1">E-mail</label>
                 <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-zinc-500">
-                        <i class="fa-regular fa-envelope"></i>
-                    </span>
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-zinc-500"><i class="fa-regular fa-envelope"></i></span>
                     <input type="email" id="login-email" placeholder="nome@exemplo.com" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-4 pl-11 pr-4 text-white focus:outline-none focus:border-neon-orange transition-colors">
                 </div>
             </div>
@@ -136,112 +121,62 @@
                     <a href="#" onclick="recuperarSenha()" class="text-xs font-bold neon-orange hover:underline">Esqueci a senha</a>
                 </div>
                 <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-zinc-500">
-                        <i class="fa-solid fa-lock"></i>
-                    </span>
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-zinc-500"><i class="fa-solid fa-lock"></i></span>
                     <input type="password" id="login-senha" placeholder="••••••••" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-4 pl-11 pr-4 text-white focus:outline-none focus:border-neon-orange transition-colors">
                 </div>
             </div>
             
-            <!-- Checkbox Manter Logado (Escondido visualmente mas funcional) -->
             <input type="checkbox" id="manter-login" checked class="hidden">
-
-            <!-- Botão Entrar Email (Conectado ao JS) -->
-            <button type="button" onclick="fazerLoginEmail()" class="w-full bg-neon-orange text-white font-bold py-4 rounded-xl shadow-neon mt-4 transition-all active:scale-95">
-                Entrar com E-mail
-            </button>
+            <button type="button" onclick="fazerLoginEmail()" class="w-full bg-neon-orange text-white font-bold py-4 rounded-xl shadow-neon mt-4 transition-all active:scale-95">Entrar com E-mail</button>
         </div>
 
-        <!-- Footer Link (Conectado ao JS) -->
-        <p class="text-center text-sm text-zinc-400 mt-8">
-            Não tem uma conta?
-            <a href="#" onclick="mostrarTelaCadastro()" class="neon-orange font-bold hover:underline">Criar Conta</a>
-        </p>
+        <p class="text-center text-sm text-zinc-400 mt-8">Não tem uma conta? <a href="#" onclick="mostrarTelaCadastro()" class="neon-orange font-bold hover:underline">Criar Conta</a></p>
     </div>
 </div>
 
-    <!-- TELA 2: CADASTRO POR E-MAIL -->
-    <div class="container hidden" id="register-section">
-        <h2 style="color: #ff6600;">Criar Conta</h2>
-        <p>Preencha para acessar o time</p>
-        <input type="text" id="cadastro-nome" placeholder="Nome Completo">
-        <input type="email" id="cadastro-email" placeholder="Seu E-mail">
-        <input type="tel" id="cadastro-telefone" placeholder="WhatsApp (DDD + Número)" oninput="mascaraTelefone(this)">
-        <input type="password" id="cadastro-senha" placeholder="Crie uma Senha (mín. 6 letras)">
-        
-        <button class="btn-primary" onclick="criarContaEmail()">Finalizar Cadastro</button>
-        <button class="btn-text" onclick="mostrarTelaLogin()">Já tenho conta</button>
-    </div>
+<!-- TELA 1.5: COMPLETAR PERFIL (Aparece só na 1ª vez via Google) -->
+<div class="container hidden" id="perfil-section">
+    <h2 style="color: #ff6600;">Falta pouco!</h2>
+    <p>Confirme seu nome e adicione o WhatsApp</p>
+    <input type="text" id="perfil-nome" placeholder="Seu Nome">
+    <input type="tel" id="perfil-telefone" placeholder="Telefone (DDD + Número)" oninput="mascaraTelefone(this)">
+    <button class="btn-primary" onclick="salvarPerfil()">Concluir Cadastro</button>
+</div>
 
-    <!-- TELA 1.5: COMPLETAR PERFIL (Aparece só na 1ª vez) -->
-    <div class="container hidden" id="perfil-section">
-        <h2 style="color: #ff6600;">Falta pouco!</h2>
-        <p>Confirme seu nome e adicione o WhatsApp</p>
-        
-        <input type="text" id="perfil-nome" placeholder="Seu Nome">
-        <input type="tel" id="perfil-telefone" placeholder="Telefone (DDD + Número)" oninput="mascaraTelefone(this)">
-        <button class="btn-primary" onclick="salvarPerfil()">Concluir Cadastro</button>
-    </div>
+<!-- TELA 2: CADASTRO -->
+<div class="container hidden" id="register-section">
+    <h2>Criar Conta</h2>
+    <p>Junte-se à quadra</p>
+    <input type="text" id="cadastro-nome" placeholder="Nome Completo">
+    <input type="email" id="cadastro-email" placeholder="Seu E-mail">
+    <input type="tel" id="cadastro-telefone" placeholder="Telefone (DDD + Número)" oninput="mascaraTelefone(this)">
+    <input type="password" id="cadastro-senha" placeholder="Crie uma Senha">
+    <input type="password" id="cadastro-senha2" placeholder="Repita a Senha">
+    <button class="btn-primary" onclick="criarContaEmail()">Finalizar Cadastro</button>
+    <button class="btn-text" onclick="mostrarTelaLogin()">Já tenho conta</button>
+</div>
 
-    <!-- TELA 2: CADASTRO -->
-    <div class="container hidden" id="register-section">
-        <h2>Criar Conta</h2>
-        <p>Junte-se à quadra</p>
-        <input type="text" id="cadastro-nome" placeholder="Nome Completo">
-        <input type="tel" id="cadastro-telefone" placeholder="Telefone (DDD + Número)" oninput="mascaraTelefone(this)">
-        <input type="password" id="cadastro-senha" placeholder="Crie uma Senha">
-        <input type="password" id="cadastro-senha2" placeholder="Repita a Senha">
-        <button class="btn-primary" onclick="criarConta()">Finalizar Cadastro</button>
-        <button class="btn-text" onclick="mostrarTelaLogin()">Já tenho conta</button>
-    </div>
-
-    <!-- TELA 3: CONVITE DE TIME -->
-    <div class="container hidden" id="invite-section">
-        <div class="card" style="text-align: center; border: 1px solid #00cc66;">
-            <h2 style="color: #00cc66;">Você foi convocado!</h2>
-            <p>Deseja entrar no time:</p>
-            <h3 id="nome-time-convite" style="font-size: 22px; margin: 15px 0;">Carregando...</h3>
-            <button class="btn-success" onclick="aceitarConvite()">Aceitar Convite</button>
-            <button class="btn-text" onclick="recusarConvite()">Recusar e ir pro Lobby</button>
-        </div>
-    </div>
-
-<!-- TELA 2: LOBBY (Design Novo) -->
+<!-- TELA 2.5: LOBBY (Design Novo) -->
 <div id="lobby-section" class="hidden w-full min-h-screen relative pb-24 overflow-x-hidden">
-    
-    <!-- Decoration -->
     <div class="fixed top-1/2 -left-20 w-64 h-64 bg-orange-600/5 blur-[100px] rounded-full -z-10"></div>
 
-    <!-- Header -->
-    <!-- Header Corrigido -->
-    <!-- Header Corrigido Definitivo -->
     <header class="sticky top-0 z-50 w-full bg-zinc-950/80 backdrop-blur-lg border-b border-zinc-900 px-6 py-5 flex items-center justify-between">
         <div class="flex items-center gap-3 overflow-hidden">
-            
-            <!-- Avatar (shrink-0 garante que a bolinha não amasse) -->
             <div class="w-10 h-10 shrink-0 rounded-full border border-zinc-800 flex items-center justify-center bg-zinc-900">
                 <i class="fa-solid fa-user text-zinc-500"></i>
             </div>
-            
-            <!-- Textos -->
             <div class="flex flex-col justify-center overflow-hidden">
                 <p class="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-0.5">Bem-vindo</p>
-                <!-- whitespace-nowrap impede que o nome caia para a linha de baixo -->
-                <h2 class="font-bold text-lg text-white leading-none whitespace-nowrap">
-                    Olá, <span id="nome-usuario-lobby" class="neon-orange">Jogador</span>
-                </h2>
+                <h2 class="font-bold text-lg text-white leading-none whitespace-nowrap">Olá, <span id="nome-usuario-lobby" class="neon-orange">Jogador</span></h2>
             </div>
         </div>
-        
-        <!-- Botão de Sair (ml-auto joga ele pro canto direito absoluto) -->
         <button onclick="fazerLogout()" class="p-2 ml-auto shrink-0 text-zinc-500 hover:text-red-500 transition-colors">
             <i class="fa-solid fa-right-from-bracket text-xl"></i>
         </button>
     </header>
 
     <main class="px-6 py-8 space-y-8">
-        
-        <!-- Conditional Invitation Card (Escondido por padrão) -->
+        <!-- Convite Pendente -->
         <section id="convite-pendente-section" class="hidden space-y-4">
             <div class="invite-gradient rounded-2xl p-5 flex items-center justify-between gap-4">
                 <div class="flex items-center gap-4">
@@ -253,143 +188,119 @@
                         <h3 id="nome-time-convite" class="font-bold text-white">Nome do Time</h3>
                     </div>
                 </div>
-                <button onclick="aceitarConvite()" class="bg-neon-orange text-white text-sm font-bold px-4 py-2.5 rounded-lg shadow-neon active:scale-95 transition-all">
-                    Aceitar
-                </button>
+                <button onclick="aceitarConvite()" class="bg-neon-orange text-white text-sm font-bold px-4 py-2.5 rounded-lg shadow-neon active:scale-95 transition-all">Aceitar</button>
             </div>
         </section>
 
-        <!-- Teams List -->
+        <!-- Lista de Times -->
         <section class="space-y-4">
             <div class="flex items-center justify-between">
                 <h3 class="font-extrabold text-xl tracking-tight text-white">Meus Times</h3>
                 <span id="contador-times" class="bg-zinc-900 text-zinc-400 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-tighter">0 Ativos</span>
             </div>
-
-            <!-- Aqui o JavaScript vai injetar os cards dos times -->
             <div id="lista-times" class="grid gap-4">
-                <!-- Os times entram aqui -->
+                <!-- Injetado via JS -->
             </div>
         </section>
     </main>
 
-    <!-- Create Team Button (FAB) -->
-    <div class="fixed bottom-8 left-0 right-0 px-6 z-40">
-        <button onclick="mostrarCriacaoTime()" class="w-full bg-zinc-900 border border-zinc-800 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] active:border-neon-orange shadow-lg">
-            <div class="w-8 h-8 rounded-lg bg-neon-orange/20 flex items-center justify-center">
-                <i class="fa-solid fa-plus neon-orange"></i>
-            </div>
+    <div class="fixed bottom-8 left-0 right-0 px-6 z-40 max-w-sm mx-auto">
+        <button onclick="abrirModalJogo()" class="w-full bg-zinc-900 border border-zinc-800 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] active:border-neon-orange shadow-lg">
+            <div class="w-8 h-8 rounded-lg bg-neon-orange/20 flex items-center justify-center"><i class="fa-solid fa-plus neon-orange"></i></div>
             Criar Novo Time
         </button>
     </div>
 </div>
 
-    <!-- MODAL CRIAR TIME (Dentro do Lobby) -->
-    <div class="container hidden" id="modal-criar-time">
-        <div class="card card-admin">
-            <h3>Nome do Novo Time</h3>
-            <input type="text" id="nome-time" placeholder="Ex: Inimigos da Manchete">
-            <button class="btn-primary" onclick="criarTime()">Salvar Time</button>
-            <button class="btn-text" onclick="document.getElementById('modal-criar-time').classList.add('hidden')">Cancelar</button>
-        </div>
+<!-- ÁREA 3: O VESTIÁRIO (Ainda no design antigo, seguro!) -->
+<div class="container hidden" id="team-section">
+    <div class="top-bar">
+        <button class="btn-secondary" onclick="voltarParaLobby()" style="width: auto; padding: 10px 15px; font-size: 14px;">← Sair</button>
+        <h3 style="margin: 0; color: #aaa;">Vestiário</h3>
+        <button id="btn-atualizar" class="btn-secondary" onclick="atualizarVestiario()" style="width: auto; padding: 10px 15px; font-size: 14px; background-color: #333;">🔄</button>
     </div>
 
-<!-- ÁREA 2: O VESTIÁRIO (DASHBOARD DO TIME) -->
-    <div class="container hidden" id="team-section">
-        <div class="top-bar">
-            <button class="btn-secondary" onclick="voltarParaLobby()" style="width: auto; padding: 10px 15px; font-size: 14px;">← Sair</button>
-            <h3 style="margin: 0; color: #aaa;">Vestiário</h3>
-            <button id="btn-atualizar" class="btn-secondary" onclick="atualizarVestiario()" style="width: auto; padding: 10px 15px; font-size: 14px; background-color: #333;">🔄</button>
-        </div>
-
-        <!-- Resumo do Time -->
-        <div class="card" style="border-left: 4px solid #ffcc00; margin-bottom: 15px;">
-            <h2 id="titulo-time" style="margin-top: 0; color: white; font-size: 26px;">Nome do Time</h2>
-            <p style="margin: 5px 0;">👑 Organizador: <b id="nome-admin-time" style="color: #ff6600;">...</b></p>
-            
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button id="btn-chamar-jogo" class="btn-primary hidden" onclick="abrirModalJogo()" style="flex: 1; background-color: #0099ff; font-size: 14px; padding: 10px;">📢 Novo Jogo</button>
-                <button id="btn-convite-time" class="btn-secondary hidden" onclick="copiarLinkTime()" style="flex: 1; font-size: 14px; padding: 10px;">🔗 Link Convite</button>
-            </div>
-        </div>
-
-        <!-- Estatísticas da Temporada (Criatividade!) -->
-        <div class="card" style="padding: 15px; background: #1a1a1a; border: 1px dashed #444;">
-            <h3 style="margin: 0 0 10px 0; font-size: 14px; color: #aaa;">📊 Estatísticas da Temporada</h3>
-            <div style="display: flex; justify-content: space-between; text-align: center; gap: 5px;">
-                <div style="background: #242424; padding: 10px; border-radius: 8px; flex: 1;">
-                    <p style="margin: 0; font-size: 20px;">🔥</p>
-                    <p style="margin: 5px 0 0 0; font-size: 10px; color: #888;">MVP</p>
-                    <b style="font-size: 12px; color: white;">Em breve</b>
-                </div>
-                <div style="background: #242424; padding: 10px; border-radius: 8px; flex: 1;">
-                    <p style="margin: 0; font-size: 20px;">🧱</p>
-                    <p style="margin: 5px 0 0 0; font-size: 10px; color: #888;">Paredão</p>
-                    <b style="font-size: 12px; color: white;">Em breve</b>
-                </div>
-                <div style="background: #242424; padding: 10px; border-radius: 8px; flex: 1;">
-                    <p style="margin: 0; font-size: 20px;">🥬</p>
-                    <p style="margin: 5px 0 0 0; font-size: 10px; color: #888;">Mão de Alface</p>
-                    <b style="font-size: 12px; color: white;">Em breve</b>
-                </div>
-            </div>
-        </div>
-
-        <!-- Lista de Jogos Ativos (Agora serão mini-cards clicáveis) -->
-        <h3 style="margin: 20px 0 10px 0;">Próximas Partidas</h3>
-        <div id="lista-jogos">
-            <p style="text-align: center;">Buscando jogos...</p>
-        </div>
-
-        <!-- Lista de Membros -->
-        <div class="card" style="margin-top: 20px;">
-            <h3 style="margin-bottom: 5px;">Elenco</h3>
-            <div id="lista-membros"></div>
-        </div>
-    </div>
-
-    <!-- ÁREA 3: A QUADRA (DETALHES DO JOGO ESPECÍFICO) -->
-    <div class="container hidden" id="game-section">
-        <div class="top-bar">
-            <button class="btn-secondary" onclick="voltarParaVestiario()" style="width: auto; padding: 10px 15px; font-size: 14px;">← Voltar</button>
-            <h3 style="margin: 0; color: #0099ff;">Partida Ativa</h3>
-            <button id="btn-cancelar-jogo" class="btn-danger hidden" style="width: auto; padding: 10px 15px; font-size: 14px;">🗑️ Cancelar</button>
-        </div>
+    <div class="card" style="border-left: 4px solid #ffcc00; margin-bottom: 15px;">
+        <h2 id="titulo-time" style="margin-top: 0; color: white; font-size: 26px;">Nome do Time</h2>
+        <p style="margin: 5px 0;">👑 Organizador: <b id="nome-admin-time" style="color: #ff6600;">...</b></p>
         
-        <!-- Onde a quadra grande e o rateio vão ser desenhados -->
-        <div id="detalhes-jogo-ativo"></div>
-    </div>
-
-    <!-- O MODAL DE CRIAR JOGO FICA AQUI FORA PARA NÃO ATRAPALHAR -->
-    <div id="modal-chamar-jogo" class="container hidden" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px;">
-        <div class="card card-admin" style="width: 100%; max-width: 400px; border-color: #0099ff;">
-            <h3 style="color: #0099ff;">Configurar Partida</h3>
-            <!-- (MANTENHA OS SEUS INPUTS DO MODAL AQUI DENTRO IGUAL ANTES) -->
-            <input type="text" id="jogo-local" placeholder="Local e Quadra">
-            <input type="date" id="jogo-data">
-            <div style="display: flex; gap: 10px; align-items: center; margin: 8px 0 16px 0;">
-                <div style="flex: 1;">
-                    <p style="margin: 0 0 5px 0; font-size: 12px; color: #888;">Início</p>
-                    <input type="time" id="jogo-inicio" style="margin: 0;" onchange="calcularFimJogo()">
-                </div>
-                <div style="flex: 1;">
-                    <p style="margin: 0 0 5px 0; font-size: 12px; color: #888;">Duração</p>
-                    <select id="jogo-duracao" style="width: 100%; padding: 14px; background-color: #242424; color: white; border: none; border-radius: 8px; outline: none; font-size: 16px;" onchange="calcularFimJogo()">
-                        <option value="1">1 hora</option>
-                        <option value="1.5">1h 30min</option>
-                        <option value="2" selected>2 horas</option>
-                    </select>
-                </div>
-            </div>
-            <div style="background: #1a1a1a; padding: 12px; border-radius: 8px; margin-bottom: 16px; text-align: center; border: 1px dashed #444;">
-                <p style="margin: 0; font-size: 14px; color: #aaa;">Até as <b id="jogo-fim-display" style="color: #0099ff; font-size: 18px;">--:--</b></p>
-            </div>
-            <input type="text" id="jogo-valor" placeholder="Valor Total (R$)" oninput="mascaraMoeda(this)">
-            <button class="btn-primary" onclick="criarJogo()" style="background-color: #0099ff;">Disparar Convocação</button>
-            <button class="btn-text" onclick="fecharModalJogo()">Cancelar</button>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button id="btn-chamar-jogo" class="btn-primary hidden" onclick="abrirModalJogo()" style="flex: 1; background-color: #0099ff; font-size: 14px; padding: 10px;">📢 Novo Jogo</button>
+            <button id="btn-convite-time" class="btn-secondary hidden" onclick="copiarLinkTime()" style="flex: 1; font-size: 14px; padding: 10px;">🔗 Link Convite</button>
         </div>
     </div>
 
-    <script type="module" src="app.js"></script>
+    <div class="card" style="padding: 15px; background: #1a1a1a; border: 1px dashed #444;">
+        <h3 style="margin: 0 0 10px 0; font-size: 14px; color: #aaa;">📊 Estatísticas da Temporada</h3>
+        <div style="display: flex; justify-content: space-between; text-align: center; gap: 5px;">
+            <div style="background: #242424; padding: 10px; border-radius: 8px; flex: 1;">
+                <p style="margin: 0; font-size: 20px;">🔥</p>
+                <p style="margin: 5px 0 0 0; font-size: 10px; color: #888;">MVP</p>
+                <b style="font-size: 12px; color: white;">Em breve</b>
+            </div>
+            <div style="background: #242424; padding: 10px; border-radius: 8px; flex: 1;">
+                <p style="margin: 0; font-size: 20px;">🧱</p>
+                <p style="margin: 5px 0 0 0; font-size: 10px; color: #888;">Paredão</p>
+                <b style="font-size: 12px; color: white;">Em breve</b>
+            </div>
+            <div style="background: #242424; padding: 10px; border-radius: 8px; flex: 1;">
+                <p style="margin: 0; font-size: 20px;">🥬</p>
+                <p style="margin: 5px 0 0 0; font-size: 10px; color: #888;">Mão de Alface</p>
+                <b style="font-size: 12px; color: white;">Em breve</b>
+            </div>
+        </div>
+    </div>
+
+    <h3 style="margin: 20px 0 10px 0;">Próximas Partidas</h3>
+    <div id="lista-jogos">
+        <p style="text-align: center;">Buscando jogos...</p>
+    </div>
+
+    <div class="card" style="margin-top: 20px;">
+        <h3 style="margin-bottom: 5px;">Elenco</h3>
+        <div id="lista-membros"></div>
+    </div>
+</div>
+
+<!-- ÁREA 4: A QUADRA (Ainda no design antigo) -->
+<div class="container hidden" id="game-section">
+    <div class="top-bar">
+        <button class="btn-secondary" onclick="voltarParaVestiario()" style="width: auto; padding: 10px 15px; font-size: 14px;">← Voltar</button>
+        <h3 style="margin: 0; color: #0099ff;">Partida Ativa</h3>
+        <button id="btn-cancelar-jogo" class="btn-danger hidden" style="width: auto; padding: 10px 15px; font-size: 14px;">🗑️ Cancelar</button>
+    </div>
+    <div id="detalhes-jogo-ativo"></div>
+</div>
+
+<!-- MODAL DE CRIAR JOGO -->
+<div id="modal-chamar-jogo" class="container hidden" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; max-width: 100%;">
+    <div class="card card-admin" style="width: 100%; max-width: 400px; border-color: #0099ff; margin: auto;">
+        <h3 style="color: #0099ff;">Configurar Partida</h3>
+        <input type="text" id="jogo-local" placeholder="Local e Quadra">
+        <input type="date" id="jogo-data">
+        <div style="display: flex; gap: 10px; align-items: center; margin: 8px 0 16px 0;">
+            <div style="flex: 1;">
+                <p style="margin: 0 0 5px 0; font-size: 12px; color: #888;">Início</p>
+                <input type="time" id="jogo-inicio" style="margin: 0;" onchange="calcularFimJogo()">
+            </div>
+            <div style="flex: 1;">
+                <p style="margin: 0 0 5px 0; font-size: 12px; color: #888;">Duração</p>
+                <select id="jogo-duracao" style="width: 100%; padding: 14px; background-color: #242424; color: white; border: none; border-radius: 8px; outline: none; font-size: 16px;" onchange="calcularFimJogo()">
+                    <option value="1">1 hora</option>
+                    <option value="1.5">1h 30min</option>
+                    <option value="2" selected>2 horas</option>
+                </select>
+            </div>
+        </div>
+        <div style="background: #1a1a1a; padding: 12px; border-radius: 8px; margin-bottom: 16px; text-align: center; border: 1px dashed #444;">
+            <p style="margin: 0; font-size: 14px; color: #aaa;">Até as <b id="jogo-fim-display" style="color: #0099ff; font-size: 18px;">--:--</b></p>
+        </div>
+        <input type="text" id="jogo-valor" placeholder="Valor Total (R$)" oninput="mascaraMoeda(this)">
+        <button class="btn-primary" onclick="criarJogo()" style="background-color: #0099ff;">Disparar Convocação</button>
+        <button class="btn-text" onclick="fecharModalJogo()">Cancelar</button>
+    </div>
+</div>
+
+<script type="module" src="app.js"></script>
 </body>
 </html>
